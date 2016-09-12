@@ -118,7 +118,9 @@ public class SingleParticle {
 		double acceleration = Math.pow(calculateSpeed(), 2)/radius;
 		setAcceleration(acceleration);
 	}
-	
+	private double calculateForce(){
+		return mass * acceleration;
+	}
 	
 	/**
 	 * Only for testing!
@@ -132,6 +134,9 @@ public class SingleParticle {
 		System.out.println(iss.calculateSpeed());
 		iss.calculateAcceleration();
 		System.out.println(iss.getAcceleration());
+		System.out.println(iss.calculateForce());
+		iss.setMass(419600);
+		System.out.println(iss.calculateForce());
 	}
 
 }
