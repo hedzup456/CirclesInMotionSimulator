@@ -3,7 +3,7 @@
  */
 package circularmotion;
 
-import java.awt.Point;
+import java.awt.geom.Point2D;	// Yes, I know it's bad practise to import entire packages
 
 
 /**
@@ -18,7 +18,7 @@ public class SingleParticle{
 	private	double mass = 0;	// Zero by default
 	private double period;
 	private double radius;
-	private Point centre = new Point();	// awt.Point initialises as 0,0 given no arguments
+	private Point2D.Double centre = new Point2D.Double(500,500);	// awt.Point initialises as 0,0 given no arguments
 	
 	//	Getters
 	/**
@@ -97,7 +97,7 @@ public class SingleParticle{
 	public void setMass(double mass) {
 		this.mass = mass;
 	}
-	public void setCentre(Point centre){
+	public void setCentre(Point2D.Double centre){
 		this.centre = centre;
 	}
 	
@@ -108,7 +108,7 @@ public class SingleParticle{
 		else setFrequency(periodOrFrequency);
 		setRadius(radius);
 	}
-	public SingleParticle (double acceleration, boolean isPeriod, double periodOrFrequency, double radius, Point centre){
+	public SingleParticle (double acceleration, boolean isPeriod, double periodOrFrequency, double radius, Point2D.Double centre){
 		this(acceleration, isPeriod, periodOrFrequency, radius);	// Reuse existing constructor
 		setCentre(centre);
 	}
@@ -132,35 +132,48 @@ public class SingleParticle{
 		return mass * acceleration;
 	}
 	
-	private Point determineLocationGivenPartOfT(double progressIntoT){
-		Point location;
+	private Point2D.Double determineLocationGivenPartOfT(double progressIntoT){
+		Point2D.Double location;
 		progressIntoT %= 1.0;	// It's irrelevant if the particle has done more than one full circle
 		// Multiplying by 100 allows easy use of switch-case to sort out the four quarters of T.
+		double x, y;
 		switch( (int)(100*progressIntoT) ){
 		case 0:
-			location = new Point(0, (int)radius);
+			x = 0;
+			y = radius;
 			break;
 		case 25:
-			location = new Point((int)radius, 0);
+			x = radius;
+			y =  0;
 			break;
 		case 50:
-			location = new Point(0, -(int)radius);
+			x = 0;
+			y = -radius;
 			break;
 		case 75:
-			location = new Point(-(int)radius, 0);
+			x = -radius;
+			y = 0;
 			break;
 		default:
-			location = new Point(999,999); // TEMP
-			// TODO Add actual handling!
+			double theta = calculateAngleFromPartOfT(progressIntoT);
+			x = radius*Math.sin(theta);
+			y = radius*Math.cos(theta);			
 		}
+		x += centre.x;
+		y += centre.y;
+		location = new Point2D.Double(x, y);
 		return location;
 	}
-	private Point[] calculateLocationInSixteenthsOfT(){
-		Point[] sixteenthsOfT = new Point[16];
-		for (int sixteenth = 0; sixteenth < 16; sixteenth++){
-			sixteenthsOfT[sixteenth] = determineLocationGivenPartOfT(period*sixteenth/16.00);
+	private double calculateAngleFromPartOfT(double progressIntoT){
+		double angleInRadians = 2*PI*(progressIntoT/period);	// (t/T)*fullCircle
+		return angleInRadians;
+	}
+	public Point2D.Double[] calculateLocationInSecotionsOfT(int resolution){	// Resolution is how many points to make
+		Point2D.Double[] partsOfT = new Point2D.Double[resolution];
+		for (int part = 0; part < resolution; part++){
+			partsOfT[part] = determineLocationGivenPartOfT(period*part/resolution);
 		}
-		return sixteenthsOfT;
+		return partsOfT;
 	}
 	
 	/**
@@ -180,9 +193,11 @@ public class SingleParticle{
 		iss.setMass(1);
 		System.out.println(iss.calculateForce());
 		
-		for (Point p: iss.calculateLocationInSixteenthsOfT()){
+		for (Point2D.Double p: iss.calculateLocationInSecotionsOfT(1000)){
 			System.out.println(p.getX() + ", " + p.getY());
 		}
+		
 	}
 
 }
+
