@@ -3,19 +3,22 @@
  */
 package circularmotion;
 
+import java.awt.Point;
+
+
 /**
  * @author 		Richard Henry (richardhenry602@gmail.com)
  * @since 		3 Aug 2016
  *
  */
-public class SingleParticle {
+public class SingleParticle{
 	private final double PI = Math.PI;	//	Save typing Math. every time.
 	private double acceleration;
 	private double force;
 	private	double mass = 0;	// Zero by default
 	private double period;
 	private double radius;
-	
+	private Point centre = new Point();	// awt.Point initialises as 0,0 given no arguments
 	
 	//	Getters
 	/**
@@ -94,6 +97,9 @@ public class SingleParticle {
 	public void setMass(double mass) {
 		this.mass = mass;
 	}
+	public void setCentre(Point centre){
+		this.centre = centre;
+	}
 	
 	//	Constructors
 	public SingleParticle (double acceleration, boolean isPeriod, double periodOrFrequency, double radius){
@@ -101,6 +107,10 @@ public class SingleParticle {
 		if (isPeriod) setPeriod(periodOrFrequency);
 		else setFrequency(periodOrFrequency);
 		setRadius(radius);
+	}
+	public SingleParticle (double acceleration, boolean isPeriod, double periodOrFrequency, double radius, Point centre){
+		this(acceleration, isPeriod, periodOrFrequency, radius);	// Reuse existing constructor
+		setCentre(centre);
 	}
 	
 	
@@ -122,12 +132,44 @@ public class SingleParticle {
 		return mass * acceleration;
 	}
 	
+	private Point determineLocationGivenPartOfT(double progressIntoT){
+		Point location;
+		progressIntoT %= 1.0;	// It's irrelevant if the particle has done more than one full circle
+		// Multiplying by 100 allows easy use of switch-case to sort out the four quarters of T.
+		switch( (int)(100*progressIntoT) ){
+		case 0:
+			location = new Point(0, (int)radius);
+			break;
+		case 25:
+			location = new Point((int)radius, 0);
+			break;
+		case 50:
+			location = new Point(0, -(int)radius);
+			break;
+		case 75:
+			location = new Point(-(int)radius, 0);
+			break;
+		default:
+			location = new Point(999,999); // TEMP
+			// TODO Add actual handling!
+		}
+		return location;
+	}
+	private Point[] calculateLocationInSixteenthsOfT(){
+		Point[] sixteenthsOfT = new Point[16];
+		for (int sixteenth = 0; sixteenth < 16; sixteenth++){
+			sixteenthsOfT[sixteenth] = determineLocationGivenPartOfT(period*sixteenth/16.00);
+		}
+		return sixteenthsOfT;
+	}
+	
 	/**
 	 * Only for testing!
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		SingleParticle iss = new SingleParticle(0.0, true, 5561.4, (412.5 + 6371)*1000);
+		//new SingleParticle(acceleration, isPeriod, periodOrFrequency, radius)
+		SingleParticle iss = new SingleParticle(0.0, true, 1, 1);
 		
 		System.out.println(iss.getPeriod());
 		System.out.println(iss.getFrequency());
@@ -135,8 +177,12 @@ public class SingleParticle {
 		iss.calculateAcceleration();
 		System.out.println(iss.getAcceleration());
 		System.out.println(iss.calculateForce());
-		iss.setMass(419600);
+		iss.setMass(1);
 		System.out.println(iss.calculateForce());
+		
+		for (Point p: iss.calculateLocationInSixteenthsOfT()){
+			System.out.println(p.getX() + ", " + p.getY());
+		}
 	}
 
 }
