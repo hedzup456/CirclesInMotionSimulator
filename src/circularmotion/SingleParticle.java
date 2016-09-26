@@ -28,6 +28,14 @@ public class SingleParticle{
 		return acceleration;
 	}
 	/**
+	 * @return the centre as a point
+	 */
+	public Point2D.Double getCentre(){
+		return centre;
+	}
+	
+	
+	/**
 	 * @return the force
 	 */
 	public double getForce() {

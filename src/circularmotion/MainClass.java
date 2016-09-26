@@ -17,25 +17,22 @@ import javax.swing.JFrame;
  *
  */
 public class MainClass extends JFrame{
-	Point2D.Double[] aa;
-	public MainClass(Point2D.Double[] a){
+	SingleParticle sp;
+	public MainClass(SingleParticle sp){
 		super();
-		aa = a;
+		this.sp = sp;
 	}
 	public static void main(String[] a){
 		SingleParticle sp = new SingleParticle(0, true, 1, 450);
-		MainClass f = new MainClass(sp.calculateLocationInSecotionsOfT(100000));
+		MainClass f = new MainClass(sp.calculateLocationInSecotionsOfT(1000));
 		f.setSize(1000,1000);
 		f.setVisible(true);		
 	}
+	private void drawOval(Graphics g, Point2D.Double ctr, double rad){
+	
+	}
 	public void paint(Graphics g){
 		Graphics2D g2d = (Graphics2D) g;
-		for (int i = 0; i < aa.length; i++){
-			if (i == aa.length-1){
-				g2d.draw(new Line2D.Float(aa[i], aa[0]));
-			} else {
-				g2d.draw(new Line2D.Float(aa[i], aa[i+1]));
-			}
-		}
+		drawOval(g, sp.getCentre.getX(), sp.getCentre.getY(), sp.getRadius());
 	}
 }
