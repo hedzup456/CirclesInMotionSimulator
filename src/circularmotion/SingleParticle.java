@@ -3,9 +3,6 @@
  */
 package circularmotion;
 
-import java.awt.geom.Point2D;	// Yes, I know it's bad practise to import entire packages
-
-
 /**
  * @author 		Richard Henry (richardhenry602@gmail.com)
  * @since 		3 Aug 2016
@@ -18,7 +15,7 @@ public class SingleParticle{
 	private	double mass = 0;	// Zero by default
 	private double period;
 	private double radius;
-	private Point2D.Double centre = new Point2D.Double(500,500);	// awt.Point initialises as 0,0 given no arguments
+	private Point centre = new Point(500,500);	// Point initialises as 0,0 given no arguments
 	
 	//	Getters
 	/**
@@ -28,7 +25,14 @@ public class SingleParticle{
 		return acceleration;
 	}
 	/**
+	 * @return the centre as a point
+	 */
+	public Point getCentre(){
+		return centre;
+	}	
+	/**
 	 * @return the force
+	 * awakens
 	 */
 	public double getForce() {
 		return force;
@@ -72,9 +76,9 @@ public class SingleParticle{
 		this.force = force;
 	}
 	/**
+	 * Set the frequency of the particle as a function of the perood.
 	 * @param frequency The frequency of the object's rotation.
 	 * 
-	 * This method doesn't set a value directly, instead storing frequency as a function of period
 	 */
 	public void setFrequency(double frequency) {
 		this.period = Math.pow(frequency, -1);
@@ -97,7 +101,11 @@ public class SingleParticle{
 	public void setMass(double mass) {
 		this.mass = mass;
 	}
-	public void setCentre(Point2D.Double centre){
+	/**
+	 * Set the particles' rotation centre
+	 * @param centre
+	 */
+	public void setCentre(Point centre){
 		this.centre = centre;
 	}
 	
@@ -108,7 +116,7 @@ public class SingleParticle{
 		else setFrequency(periodOrFrequency);
 		setRadius(radius);
 	}
-	public SingleParticle (double acceleration, boolean isPeriod, double periodOrFrequency, double radius, Point2D.Double centre){
+	public SingleParticle (double acceleration, boolean isPeriod, double periodOrFrequency, double radius, Point centre){
 		this(acceleration, isPeriod, periodOrFrequency, radius);	// Reuse existing constructor
 		setCentre(centre);
 	}
@@ -132,8 +140,8 @@ public class SingleParticle{
 		return mass * acceleration;
 	}
 	
-	private Point2D.Double determineLocationGivenPartOfT(double progressIntoT){
-		Point2D.Double location;
+	public Point determineLocationGivenPartOfT(double progressIntoT){
+		Point location;
 		progressIntoT %= 1.0;	// It's irrelevant if the particle has done more than one full circle
 		// Multiplying by 100 allows easy use of switch-case to sort out the four quarters of T.
 		double x, y;
@@ -159,17 +167,17 @@ public class SingleParticle{
 			x = radius*Math.sin(theta);
 			y = radius*Math.cos(theta);			
 		}
-		x += centre.x;
-		y += centre.y;
-		location = new Point2D.Double(x, y);
+		x += centre.getX();
+		y += centre.getY();
+		location = new Point(x, y);
 		return location;
 	}
 	private double calculateAngleFromPartOfT(double progressIntoT){
 		double angleInRadians = 2*PI*(progressIntoT/period);	// (t/T)*fullCircle
 		return angleInRadians;
 	}
-	public Point2D.Double[] calculateLocationInSecotionsOfT(int resolution){	// Resolution is how many points to make
-		Point2D.Double[] partsOfT = new Point2D.Double[resolution];
+	public Point[] calculateLocationInSecotionsOfT(int resolution){	// Resolution is how many points to make
+		Point[] partsOfT = new Point[resolution];
 		for (int part = 0; part < resolution; part++){
 			partsOfT[part] = determineLocationGivenPartOfT(period*part/resolution);
 		}
@@ -193,7 +201,7 @@ public class SingleParticle{
 		iss.setMass(1);
 		System.out.println(iss.calculateForce());
 		
-		for (Point2D.Double p: iss.calculateLocationInSecotionsOfT(1000)){
+		for (Point p: iss.calculateLocationInSecotionsOfT(1000)){
 			System.out.println(p.getX() + ", " + p.getY());
 		}
 		
