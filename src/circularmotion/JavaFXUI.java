@@ -1,44 +1,108 @@
 package circularmotion;
 
-import static java.lang.Math.random;
-
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.effect.BoxBlur;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeType;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 public class JavaFXUI extends Application {
-    @Override
+    private int height = 600;
+    private int width = 800;
+    Stage primStg;
+	@Override
     public void start(Stage primaryStage) {
         Group root = new Group();
-        Scene scene = new Scene(root, 800, 600, Color.BLACK);
+        Scene scene = new Scene(root, width, height, Color.BLACK);
         primaryStage.setScene(scene);
-
-        Circle circle = new Circle(150, Color.web("white", 0.05));
-        circle.setStrokeType(StrokeType.OUTSIDE);
-        circle.setStroke(Color.web("white", 0.16));
-        circle.setStrokeWidth(4);
-                
-        circle.setCenterX(circle.getCenterX());
-        circle.setCenterY(circle.getCenterY());
         
-       primaryStage.show();
+        primaryStage.setTitle("Circles in Motion");
+        
+        MenuBar menubar = makeMenuBar();
+        
+        
+        Canvas canvas = new Canvas(800, 600);
+        
+        makeCircle(canvas.getGraphicsContext2D());
+        
+        root.getChildren().add(canvas);
+        root.getChildren().add(menubar);
+        primStg = primaryStage;
+        primaryStage.show();
     }
-
+	private void changeBackgroundColour(Paint colour){
+		primStg.getScene().setFill(colour);
+	}
+	
+    private void makeCircle(GraphicsContext gc){
+        gc.setStroke(Color.AZURE);
+        gc.setLineWidth(1);
+        Point p = findDrawingStartLocations(500);
+        gc.strokeOval(p.getX(), p.getY(), 500, 500);
+    }
+    private MenuBar makeMenuBar(){
+    	MenuBar mb = new MenuBar();
+    	
+    	Menu fileMenu = new Menu("File");
+ 
+    	MenuItem exit = new MenuItem("Exit");
+	    	exit.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					Platform.exit();
+				}
+			});
+	    	
+    	fileMenu.getItems().addAll(exit);
+    	Menu editMenu = new Menu("Edit");
+    	Menu changeColours = new Menu("Change Background Colour"); //	Submenu
+    	MenuItem black = new MenuItem("Black");
+    	MenuItem blue = new MenuItem("Blue");
+    	MenuItem green = new MenuItem("Green");
+    	
+    	black.setOnAction(new EventHandler<ActionEvent>() {
+    		@Override
+    		public void handle(ActionEvent event) {
+    		changeBackgroundColour(Color.BLACK);    		
+    		}
+		});
+    	blue.setOnAction(new EventHandler<ActionEvent>() {
+    		@Override
+    		public void handle(ActionEvent event) {
+    		changeBackgroundColour(Color.BLUE);    		
+    		}
+		});
+    	green.setOnAction(new EventHandler<ActionEvent>() {
+    		@Override
+    		public void handle(ActionEvent event) {
+    		changeBackgroundColour(Color.GREEN);    		
+    		}
+		});
+    	
+    	changeColours.getItems().addAll(black, blue, green);
+    	
+    	editMenu.getItems().add(changeColours);
+    	
+    	
+    	Menu viewMenu = new Menu("View");
+    	mb.getMenus().addAll(fileMenu, editMenu, viewMenu);
+    	return mb;
+    }
+    private Point findDrawingStartLocations(int radius){
+    	Point point = new Point();
+    	point.setX((width-radius)/2);
+    	point.setY((height-radius)/2);
+    	return point;
+    }
 	public static void main(String[] args) {
 		SingleParticle sp = new SingleParticle(0, true, 1, 500);
 		launch(args);
