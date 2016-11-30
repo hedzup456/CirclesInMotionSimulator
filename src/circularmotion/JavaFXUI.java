@@ -43,7 +43,8 @@ public class JavaFXUI extends Application {
 		primStg.getScene().setFill(colour);
 	}
 	private void changeForegroundColour(Paint colour){
-		Canvas cvs = (Canvas) primStg.getScene().getRoot().getChildrenUnmodifiable().get(0);
+		Canvas cvs = (Canvas) primStg.getScene().getRoot()
+				.getChildrenUnmodifiable().get(0)	//	WHY IS IT FUCKED
 		System.out.println("Got canvas");
 		cvs.getGraphicsContext2D().setStroke(colour);
 		System.out.println("Set colour to" + colour.toString());
