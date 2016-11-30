@@ -1,4 +1,5 @@
 /**
+ * DO NOT ACTUALLY USE ANY OF THIS YOU KNOB
  * 
  */
 package circularmotion;
