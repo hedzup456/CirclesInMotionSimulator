@@ -10,10 +10,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.*;
 import javafx.scene.effect.Effect;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.paint.Color;
@@ -25,7 +22,8 @@ public class JavaFXUI extends Application {
     private int width = 800;
     Stage primStg;
 	@Override
-    public void start(Stage primaryStage) {
+
+	public void start(Stage primaryStage) {
 	    Group root = new Group();
 	    Scene scene = new Scene(root, width, height, Color.BLACK);
 	    primaryStage.setScene(scene);
@@ -53,15 +51,18 @@ public class JavaFXUI extends Application {
 	}
 	private void changeForegroundColour(Paint colour){
 		Canvas cvs = getCanvasFromStage();
-		
-		makeCircle(cvs.getGraphicsContext2D(), colour, 
-				cvs.getGraphicsContext2D().getLineWidth());
+		makeCircle(cvs.getGraphicsContext2D(), colour, cvs.getGraphicsContext2D().getLineWidth());
 		// Get the same line width as before.
 	}
 	private void changeStrokeSize(double size){
 		Canvas cvs = getCanvasFromStage();
-		makeCircle(cvs.getGraphicsContext2D(), cvs.getGraphicsContext2D().getStroke()
-				, size);	// Keep same colour.
+		Paint colour = cvs.getGraphicsContext2D().getStroke();
+		if (size < cvs.getGraphicsContext2D().getLineWidth()){
+			/*	Needs to redraw for thinner size else it keeps the old circle visible.  This just draws the background
+			 *	colour to hide any old lines. */
+			makeCircle(cvs.getGraphicsContext2D(), primStg.getScene().getFill(), 1000);
+		}
+		makeCircle(cvs.getGraphicsContext2D(), colour, size);	// Keep same colour even if changing down a size.
 	}
 	private void makeCircle(GraphicsContext gc){
 		makeCircle(gc, Color.AZURE, 2);
@@ -160,17 +161,18 @@ public class JavaFXUI extends Application {
     	// End submenu
 	    // Submenu for stroke size.
 	    Menu strokeSize = new Menu("Change Stroke Size");
+		ToggleGroup sizeToggleGroup = new ToggleGroup();
 	    	RadioMenuItem[] sizes = new RadioMenuItem[9];
 	    	for (int i = 0; i < sizes.length; i++){
 	    		RadioMenuItem size = sizes[i];
 	    		double number = Math.pow(2, i);
 	    		size = new RadioMenuItem(String.valueOf(number));
 	    		size.setSelected((number == 2.0));
+	    		size.setToggleGroup(sizeToggleGroup);
 	    		size.setOnAction(new EventHandler<ActionEvent>() {
 	    			@Override
 	    			public void handle(ActionEvent e){
 	    				changeStrokeSize(number);
-	    				System.out.println("Changing stroke size to " + number);
 	    			}
 				});
 	    		strokeSize.getItems().add(size);
