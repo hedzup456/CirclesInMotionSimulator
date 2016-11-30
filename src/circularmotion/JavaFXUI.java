@@ -42,6 +42,12 @@ public class JavaFXUI extends Application {
 	private void changeBackgroundColour(Paint colour){
 		primStg.getScene().setFill(colour);
 	}
+	private void changeForegroundColour(Paint colour){
+		Canvas cvs = (Canvas) primStg.getScene().getRoot().getChildrenUnmodifiable().get(0);
+		System.out.println("Got canvas");
+		cvs.getGraphicsContext2D().setStroke(colour);
+		System.out.println("Set colour to" + colour.toString());
+	}
 	
     private void makeCircle(GraphicsContext gc){
         gc.setStroke(Color.AZURE);
@@ -90,7 +96,33 @@ public class JavaFXUI extends Application {
     	
     	changeColours.getItems().addAll(black, blue, green);
     	
-    	editMenu.getItems().add(changeColours);
+    	Menu changeFGColours = new Menu("Change Foreground Colour");
+    	MenuItem whiteFG = new MenuItem("White");
+    	MenuItem orangeFG = new MenuItem("Orange");
+    	MenuItem redFG	= new MenuItem("Red");
+    	whiteFG.setOnAction(new EventHandler<ActionEvent>() {
+    		@Override
+    		public void handle(ActionEvent event){
+    			changeForegroundColour(Color.WHITE);
+    		}
+    	});
+    	orangeFG.setOnAction(new EventHandler<ActionEvent>() {
+    		@Override
+    		public void handle(ActionEvent event){
+    			changeForegroundColour(Color.ORANGE);
+    		}
+    	});
+    	redFG.setOnAction(new EventHandler<ActionEvent>() {
+    		@Override
+    		public void handle(ActionEvent event){
+    			changeForegroundColour(Color.RED);
+    		}
+    	});
+    	
+    	changeFGColours.getItems().addAll(whiteFG, orangeFG, redFG);
+    	
+
+    	editMenu.getItems().addAll(changeColours, changeFGColours);
     	
     	
     	Menu viewMenu = new Menu("View");
