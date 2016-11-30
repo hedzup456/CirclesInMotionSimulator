@@ -1,5 +1,7 @@
 package circularmotion;
 
+import java.util.Map.Entry;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -11,6 +13,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.effect.Effect;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
@@ -21,112 +26,162 @@ public class JavaFXUI extends Application {
     Stage primStg;
 	@Override
     public void start(Stage primaryStage) {
-        Group root = new Group();
-        Scene scene = new Scene(root, width, height, Color.BLACK);
-        primaryStage.setScene(scene);
-        
-        primaryStage.setTitle("Circles in Motion");
-        
-        MenuBar menubar = makeMenuBar();
-        
-        
-        Canvas canvas = new Canvas(800, 600);
-        
-        makeCircle(canvas.getGraphicsContext2D());
-        
-        root.getChildren().add(canvas);
-        root.getChildren().add(menubar);
-        primStg = primaryStage;
-        primaryStage.show();
+	    Group root = new Group();
+	    Scene scene = new Scene(root, width, height, Color.BLACK);
+	    primaryStage.setScene(scene);
+	    
+	    primaryStage.setTitle("Circles in Motion");
+	    
+	    
+	    Canvas canvas = new Canvas(800, 600);
+	    canvas.setId("Main Canvas");	// Allows check of object.
+	    
+	    makeCircle(canvas.getGraphicsContext2D());
+	    
+	    root.getChildren().add(canvas);
+	    root.getChildren().add(makeMenuBar());
+	    primStg = primaryStage;
+	    primaryStage.show();
     }
+	private Canvas getCanvasFromStage(){
+		Group group = (Group) primStg.getScene().getRoot();
+		return (Canvas) group.getChildren().get(0);
+		//	Canvas is the first item added.
+	}
 	private void changeBackgroundColour(Paint colour){
 		primStg.getScene().setFill(colour);
 	}
 	private void changeForegroundColour(Paint colour){
-		Canvas cvs = (Canvas) primStg.getScene().getRoot()
-				.getChildrenUnmodifiable().get(0)	//	WHY IS IT FUCKED
-		System.out.println("Got canvas");
-		cvs.getGraphicsContext2D().setStroke(colour);
-		System.out.println("Set colour to" + colour.toString());
+		Canvas cvs = getCanvasFromStage();
+		
+		makeCircle(cvs.getGraphicsContext2D(), colour, 
+				cvs.getGraphicsContext2D().getLineWidth());
+		// Get the same line width as before.
 	}
-	
-    private void makeCircle(GraphicsContext gc){
-        gc.setStroke(Color.AZURE);
-        gc.setLineWidth(1);
+	private void changeStrokeSize(double size){
+		Canvas cvs = getCanvasFromStage();
+		makeCircle(cvs.getGraphicsContext2D(), cvs.getGraphicsContext2D().getStroke()
+				, size);	// Keep same colour.
+	}
+	private void makeCircle(GraphicsContext gc){
+		makeCircle(gc, Color.AZURE, 2);
+	}
+    private void makeCircle(GraphicsContext gc, Paint colour, double strokeSize){
+        gc.setStroke(colour);
+        gc.setLineWidth(strokeSize);
         Point p = findDrawingStartLocations(500);
         gc.strokeOval(p.getX(), p.getY(), 500, 500);
     }
     private MenuBar makeMenuBar(){
     	MenuBar mb = new MenuBar();
-    	
     	Menu fileMenu = new Menu("File");
- 
+	    // Menu items for the File menu
     	MenuItem exit = new MenuItem("Exit");
-	    	exit.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event) {
-					Platform.exit();
+    	exit.setAccelerator(KeyCombination.keyCombination("Alt+F4"));
+        exit.setOnAction(new EventHandler<ActionEvent>() {
+    		@Override
+			public void handle(ActionEvent event) {
+    			System.out.println(event);
+    			Platform.exit();
 				}
 			});
-	    	
+    	//	End of menu items.	    	
     	fileMenu.getItems().addAll(exit);
+    	
     	Menu editMenu = new Menu("Edit");
-    	Menu changeColours = new Menu("Change Background Colour"); //	Submenu
-    	MenuItem black = new MenuItem("Black");
-    	MenuItem blue = new MenuItem("Blue");
-    	MenuItem green = new MenuItem("Green");
+    	// Menu items for the Edit menu
+    	// Submenu for foreground colours.
+    	Menu changeBGColours = new Menu("Change Background Colour");
+    		MenuItem black = new MenuItem("Black");
+    		MenuItem blue = new MenuItem("Blue");
+    		MenuItem green = new MenuItem("Green");
+    		MenuItem custom = new MenuItem("Custom colour");
     	
-    	black.setOnAction(new EventHandler<ActionEvent>() {
-    		@Override
-    		public void handle(ActionEvent event) {
-    		changeBackgroundColour(Color.BLACK);    		
-    		}
-		});
-    	blue.setOnAction(new EventHandler<ActionEvent>() {
-    		@Override
-    		public void handle(ActionEvent event) {
-    		changeBackgroundColour(Color.BLUE);    		
-    		}
-		});
-    	green.setOnAction(new EventHandler<ActionEvent>() {
-    		@Override
-    		public void handle(ActionEvent event) {
-    		changeBackgroundColour(Color.GREEN);    		
-    		}
-		});
+	    	black.setOnAction(new EventHandler<ActionEvent>() {
+	    		@Override
+	    		public void handle(ActionEvent event) {
+	    		changeBackgroundColour(Color.BLACK);    		
+	    		}
+			});
+	    	blue.setOnAction(new EventHandler<ActionEvent>() {
+	    		@Override
+	    		public void handle(ActionEvent event) {
+	    		changeBackgroundColour(Color.BLUE);    		
+	    		}
+			});
+	    	green.setOnAction(new EventHandler<ActionEvent>() {
+	    		@Override
+	    		public void handle(ActionEvent event) {
+	    		changeBackgroundColour(Color.GREEN);    		
+	    		}
+			});
+	    	custom.setOnAction(new EventHandler<ActionEvent>() {
+	    		@Override
+	    		public void handle(ActionEvent event) {
+	    		changeBackgroundColour(Color.ORANGERED);    		
+	    		}
+			});
     	
-    	changeColours.getItems().addAll(black, blue, green);
-    	
+    		changeBGColours.getItems().addAll(black, blue, green,custom);
+    	// End submenu
+    	// Submenu for foreground colours.
     	Menu changeFGColours = new Menu("Change Foreground Colour");
-    	MenuItem whiteFG = new MenuItem("White");
-    	MenuItem orangeFG = new MenuItem("Orange");
-    	MenuItem redFG	= new MenuItem("Red");
-    	whiteFG.setOnAction(new EventHandler<ActionEvent>() {
-    		@Override
-    		public void handle(ActionEvent event){
-    			changeForegroundColour(Color.WHITE);
-    		}
-    	});
-    	orangeFG.setOnAction(new EventHandler<ActionEvent>() {
-    		@Override
-    		public void handle(ActionEvent event){
-    			changeForegroundColour(Color.ORANGE);
-    		}
-    	});
-    	redFG.setOnAction(new EventHandler<ActionEvent>() {
-    		@Override
-    		public void handle(ActionEvent event){
-    			changeForegroundColour(Color.RED);
-    		}
-    	});
-    	
-    	changeFGColours.getItems().addAll(whiteFG, orangeFG, redFG);
-    	
-
-    	editMenu.getItems().addAll(changeColours, changeFGColours);
-    	
+    		MenuItem whiteFG = new MenuItem("White");
+    		MenuItem orangeFG = new MenuItem("Orange");
+    		MenuItem redFG	= new MenuItem("Red");
+    		MenuItem customFG = new MenuItem("Custom colour");
+	    	
+    		whiteFG.setOnAction(new EventHandler<ActionEvent>() {
+	    		@Override
+	    		public void handle(ActionEvent event){
+	    			changeForegroundColour(Color.WHITE);
+	    		}
+	    	});
+	    	orangeFG.setOnAction(new EventHandler<ActionEvent>() {
+	    		@Override
+	    		public void handle(ActionEvent event){
+	    			changeForegroundColour(Color.ORANGE);
+	    		}
+	    	});
+	    	redFG.setOnAction(new EventHandler<ActionEvent>() {
+	    		@Override
+	    		public void handle(ActionEvent event){
+	    			changeForegroundColour(Color.RED);
+	    		}
+	    	});
+	    	customFG.setOnAction(new EventHandler<ActionEvent>() {
+	    		@Override
+	    		public void handle(ActionEvent event) {
+	    			changeForegroundColour(Color.ORANGERED);		
+	    		}
+			});
+   
+	    	changeFGColours.getItems().addAll(whiteFG, orangeFG, redFG, customFG);
+    	// End submenu
+	    // Submenu for stroke size.
+	    Menu strokeSize = new Menu("Change Stroke Size");
+	    	RadioMenuItem[] sizes = new RadioMenuItem[9];
+	    	for (int i = 0; i < sizes.length; i++){
+	    		RadioMenuItem size = sizes[i];
+	    		double number = Math.pow(2, i);
+	    		size = new RadioMenuItem(String.valueOf(number));
+	    		size.setSelected((number == 2.0));
+	    		size.setOnAction(new EventHandler<ActionEvent>() {
+	    			@Override
+	    			public void handle(ActionEvent e){
+	    				changeStrokeSize(number);
+	    				System.out.println("Changing stroke size to " + number);
+	    			}
+				});
+	    		strokeSize.getItems().add(size);
+	    	}
+	    
+	    // End of menu items.
+    	editMenu.getItems().addAll(changeBGColours, changeFGColours, strokeSize);
     	
     	Menu viewMenu = new Menu("View");
+    	// Menu items for the View menu
+    	// End of menu items.
     	mb.getMenus().addAll(fileMenu, editMenu, viewMenu);
     	return mb;
     }
