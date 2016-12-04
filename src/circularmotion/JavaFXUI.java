@@ -26,6 +26,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class JavaFXUI extends Application {
@@ -239,6 +240,7 @@ public class JavaFXUI extends Application {
     private void getNewCirclePropertiesPopup(){
     	Stage circlePopUp = new Stage();
     	circlePopUp.setTitle("Set up Circle");
+    	circlePopUp.initModality(Modality.APPLICATION_MODAL);
     	circlePopUp.getIcons().add(new Image("http://icons.iconarchive.com/icons/iconsmind/outline/512/Gears-icon.png"));
     	// Image is free for use.
 
@@ -249,7 +251,6 @@ public class JavaFXUI extends Application {
     	NumberTextField radius = new NumberTextField(particle.getRadius());
     	radius.setTooltip(new Tooltip("Set the desired radius of your circle."));
     	
-    	boolean isPeriod = true;
        	NumberTextField periodField = new NumberTextField(particle.getPeriod());
     	Label lblPeriodOrFreq = new Label("Period or Frequecy");
     	HBox periodOrFrequencyBox = new HBox();
@@ -269,11 +270,14 @@ public class JavaFXUI extends Application {
     	frequency.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				//isPeriod = false;
 				periodField.setText(particle.getFrequency());
 			}
 		});
     	periodOrFrequencyBox.getChildren().addAll(period, frequency);
+    	
+    	Label lblAcc = new Label("Acceleration");
+    	NumberTextField acc = new NumberTextField(particle.getAcceleration());
+    	acc.setTooltip(new Tooltip("Set the desired acceleration of your particle."));
     	
     	HBox cancelOkay = new HBox();
     	cancelOkay.setAlignment(Pos.CENTER);
@@ -296,13 +300,13 @@ public class JavaFXUI extends Application {
 		});
     	cancelOkay.getChildren().addAll(cancel, okay);
     	
-    	components.getChildren().addAll(lblRadius, radius, lblPeriodOrFreq, periodOrFrequencyBox, periodField, cancelOkay);
+    	components.getChildren().addAll(lblRadius, radius, lblPeriodOrFreq, periodOrFrequencyBox, periodField, lblAcc, acc, cancelOkay);
 
     	Scene stageScene = new Scene(components, 300, 300);
     	circlePopUp.setScene(stageScene);
     	circlePopUp.setAlwaysOnTop(true);
     	circlePopUp.show();	
-    	// acceleration, isPeriod, periodOrFrequency
+    	// acceleration
     }
     private Point findDrawingStartLocations(int radius){
     	Point point = new Point();
