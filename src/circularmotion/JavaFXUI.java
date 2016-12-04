@@ -1,18 +1,29 @@
 package circularmotion;
 
-import java.util.Map.Entry;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
-import javafx.scene.effect.Effect;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
@@ -20,18 +31,20 @@ import javafx.stage.Stage;
 public class JavaFXUI extends Application {
     private int height = 600;
     private int width = 800;
+    private SingleParticle particle = new SingleParticle(1, true, 10, 1);
     Stage primStg;
+    Image icon = new Image("https://cdn1.iconfinder.com/data/icons/science-filled-1/60/circles-connection-motion-128.png");
 	@Override
 
 	public void start(Stage primaryStage) {
 	    Group root = new Group();
 	    Scene scene = new Scene(root, width, height, Color.BLACK);
 	    primaryStage.setScene(scene);
-	    
+	    	    
 	    primaryStage.setTitle("Circles in Motion");
+	    primaryStage.getIcons().add(icon);
 	    
-	    
-	    Canvas canvas = new Canvas(800, 600);
+	    Canvas canvas = new Canvas(width, height);
 	    canvas.setId("Main Canvas");	// Allows check of object.
 	    
 	    makeCircle(canvas.getGraphicsContext2D());
@@ -73,26 +86,35 @@ public class JavaFXUI extends Application {
         Point p = findDrawingStartLocations(500);
         gc.strokeOval(p.getX(), p.getY(), 500, 500);
     }
-    private MenuBar makeMenuBar(){
-    	MenuBar mb = new MenuBar();
-    	Menu fileMenu = new Menu("File");
-	    // Menu items for the File menu
+    
+    /**
+     * Method to create the terms for the File menu. 
+     * <p> 
+     * Moved out of the makeMenuBar method to allow both folding of unneeded code and to make reuse of code easier should it be needed.
+     * 
+     * @param menu the Menu object to add items to.
+     */
+    private void makeFileMenu(Menu menu){
     	MenuItem exit = new MenuItem("Exit");
     	exit.setAccelerator(KeyCombination.keyCombination("Alt+F4"));
         exit.setOnAction(new EventHandler<ActionEvent>() {
     		@Override
 			public void handle(ActionEvent event) {
-    			System.out.println(event);
-    			Platform.exit();
+      			Platform.exit(); // Close the program.
 				}
-			});
-    	//	End of menu items.	    	
-    	fileMenu.getItems().addAll(exit);
-    	
-    	Menu editMenu = new Menu("Edit");
-    	// Menu items for the Edit menu
+			});	    	
+    	menu.getItems().addAll(exit);
+    }
+    /**
+     * Method to create the terms for the View menu. 
+     * <p> 
+     * Moved out of the makeMenuBar method to allow both folding of unneeded code and to make reuse of code easier should it be needed.
+     * 
+     * @param menu the Menu object to add items to.
+     */
+    private void makeViewMenu(Menu menu){
     	// Submenu for foreground colours.
-    	Menu changeBGColours = new Menu("Change Background Colour");
+    	Menu changeBGColours = new Menu("Background Colour");
     		MenuItem black = new MenuItem("Black");
     		MenuItem blue = new MenuItem("Blue");
     		MenuItem green = new MenuItem("Green");
@@ -101,25 +123,26 @@ public class JavaFXUI extends Application {
 	    	black.setOnAction(new EventHandler<ActionEvent>() {
 	    		@Override
 	    		public void handle(ActionEvent event) {
-	    		changeBackgroundColour(Color.BLACK);    		
+	    			changeBackgroundColour(Color.BLACK);    		
 	    		}
 			});
 	    	blue.setOnAction(new EventHandler<ActionEvent>() {
 	    		@Override
 	    		public void handle(ActionEvent event) {
-	    		changeBackgroundColour(Color.BLUE);    		
+	    			changeBackgroundColour(Color.BLUE);    		
 	    		}
 			});
 	    	green.setOnAction(new EventHandler<ActionEvent>() {
 	    		@Override
 	    		public void handle(ActionEvent event) {
-	    		changeBackgroundColour(Color.GREEN);    		
+	    			changeBackgroundColour(Color.GREEN);    		
 	    		}
 			});
 	    	custom.setOnAction(new EventHandler<ActionEvent>() {
 	    		@Override
 	    		public void handle(ActionEvent event) {
-	    		changeBackgroundColour(Color.ORANGERED);    		
+	    			// TODO Implement custom colour picking.
+	    			changeBackgroundColour(Color.ORANGERED);    		
 	    		}
 			});
     	
@@ -153,6 +176,7 @@ public class JavaFXUI extends Application {
 	    	customFG.setOnAction(new EventHandler<ActionEvent>() {
 	    		@Override
 	    		public void handle(ActionEvent event) {
+	    			// TODO Implement custom colour picking.
 	    			changeForegroundColour(Color.ORANGERED);		
 	    		}
 			});
@@ -162,8 +186,8 @@ public class JavaFXUI extends Application {
 	    // Submenu for stroke size.
 	    Menu strokeSize = new Menu("Change Stroke Size");
 		ToggleGroup sizeToggleGroup = new ToggleGroup();
-	    	RadioMenuItem[] sizes = new RadioMenuItem[9];
-	    	for (int i = 0; i < sizes.length; i++){
+	    	RadioMenuItem[] sizes = new RadioMenuItem[4];
+	    	for (int i = 0; i < sizes.length; i++){	// It's neater to just run over the array.
 	    		RadioMenuItem size = sizes[i];
 	    		double number = Math.pow(2, i);
 	    		size = new RadioMenuItem(String.valueOf(number));
@@ -179,13 +203,106 @@ public class JavaFXUI extends Application {
 	    	}
 	    
 	    // End of menu items.
-    	editMenu.getItems().addAll(changeBGColours, changeFGColours, strokeSize);
+    	menu.getItems().addAll(changeBGColours, changeFGColours, strokeSize);
+    }
+    /**
+     * Method to create the terms for the Edit menu. 
+     * <p> 
+     * Moved out of the makeMenuBar method to allow both folding of unneeded code and to make reuse of code easier should it be needed.
+     * 
+     * @param menu the Menu object to add items to.
+     */
+    private void makeEditMenu(Menu menu){
+    	MenuItem newCircleWindow = new MenuItem("Set up circle");
+    	newCircleWindow.setAccelerator(KeyCombination.keyCombination("Ctrl+E"));
+    	newCircleWindow.setOnAction(new EventHandler<ActionEvent>() {
+    		@Override
+    		public void handle(ActionEvent event) {
+    			getNewCirclePropertiesPopup();
+    		}
+		});
+    	menu.getItems().addAll(newCircleWindow);
+    }
+    private MenuBar makeMenuBar(){
+    	MenuBar mb = new MenuBar();
+    	Menu file = new Menu("File");
+	    Menu edit = new Menu("Edit");
+    	Menu view = new Menu("View");
     	
-    	Menu viewMenu = new Menu("View");
-    	// Menu items for the View menu
-    	// End of menu items.
-    	mb.getMenus().addAll(fileMenu, editMenu, viewMenu);
+    	makeFileMenu(file);
+    	makeEditMenu(edit);
+    	makeViewMenu(view);
+
+    	mb.getMenus().addAll(file, edit, view);
     	return mb;
+    }
+    private void getNewCirclePropertiesPopup(){
+    	Stage circlePopUp = new Stage();
+    	circlePopUp.setTitle("Set up Circle");
+    	circlePopUp.getIcons().add(new Image("http://icons.iconarchive.com/icons/iconsmind/outline/512/Gears-icon.png"));
+    	// Image is free for use.
+
+    	VBox components = new VBox();
+    	components.setAlignment(Pos.TOP_CENTER);
+    	
+    	Label lblRadius = new Label("Radius");
+    	NumberTextField radius = new NumberTextField(particle.getRadius());
+    	radius.setTooltip(new Tooltip("Set the desired radius of your circle."));
+    	
+    	boolean isPeriod = true;
+       	NumberTextField periodField = new NumberTextField(particle.getPeriod());
+    	Label lblPeriodOrFreq = new Label("Period or Frequecy");
+    	HBox periodOrFrequencyBox = new HBox();
+    	periodOrFrequencyBox.setAlignment(Pos.CENTER);
+    	ToggleGroup perOrFreq = new ToggleGroup();
+    	ToggleButton period = new ToggleButton("Period");
+    	period.setToggleGroup(perOrFreq);
+    	period.setSelected(true);
+    	period.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				periodField.setText(particle.getPeriod());
+			}
+		});
+    	ToggleButton frequency = new ToggleButton("Frequency");
+    	frequency.setToggleGroup(perOrFreq);
+    	frequency.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				//isPeriod = false;
+				periodField.setText(particle.getFrequency());
+			}
+		});
+    	periodOrFrequencyBox.getChildren().addAll(period, frequency);
+    	
+    	HBox cancelOkay = new HBox();
+    	cancelOkay.setAlignment(Pos.CENTER);
+    	Button cancel = new Button("Cancel");
+    	cancel.setTooltip(new Tooltip("This will discard your changes and close the edit window."));
+    	cancel.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				circlePopUp.hide();				
+			}
+		});
+    	Button okay = new Button("Okay");
+    	okay.setTooltip(new Tooltip("This will save your changes and reflect them in the main display."));
+    	okay.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				System.out.println("ok");
+				circlePopUp.hide();
+			}
+		});
+    	cancelOkay.getChildren().addAll(cancel, okay);
+    	
+    	components.getChildren().addAll(lblRadius, radius, lblPeriodOrFreq, periodOrFrequencyBox, periodField, cancelOkay);
+
+    	Scene stageScene = new Scene(components, 300, 300);
+    	circlePopUp.setScene(stageScene);
+    	circlePopUp.setAlwaysOnTop(true);
+    	circlePopUp.show();	
+    	// acceleration, isPeriod, periodOrFrequency
     }
     private Point findDrawingStartLocations(int radius){
     	Point point = new Point();
@@ -194,7 +311,6 @@ public class JavaFXUI extends Application {
     	return point;
     }
 	public static void main(String[] args) {
-		SingleParticle sp = new SingleParticle(0, true, 1, 500);
 		launch(args);
 	}
 	
