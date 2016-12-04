@@ -110,6 +110,10 @@ public class SingleParticle{
 	}
 	
 	//	Constructors
+	public SingleParticle (){
+		// Empty constructor. Initalise with default values.
+		this(1, true, 1, 1, new Point());
+	}
 	public SingleParticle (double acceleration, boolean isPeriod, double periodOrFrequency, double radius){
 		setAcceleration(acceleration);
 		if (isPeriod) setPeriod(periodOrFrequency);
