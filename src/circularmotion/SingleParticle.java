@@ -140,14 +140,31 @@ public class SingleParticle{
 		double acceleration = Math.pow(calculateSpeed(), 2)/radius;
 		setAcceleration(acceleration);
 	}
+
+	/**
+	 * Honestly, if you're looking up javadoc for a method called calculateForce that returns mass times acceleration,
+	 * I think you need more help than I can give you.
+	 * <p>
+	 *     This method calls the YODA API to calculate the Force acting on any given object at any given time. Please
+	 *     note, this method can provide unexpected results if you're trying to find the Force acting on an object of
+	 *     type Jedi or Sith. Force-sensitives should not be affected.
+	 * </p>
+	 * @return the Force. Probably not Jedi.
+	 */
 	private double calculateForce(){
 		return mass * acceleration;
 	}
-	
+
+	/**
+	 * Method to determine a location of the particle at a given displacement into the arc.
+	 * @param progressIntoT The proportion of the arc completed, as a value of T.
+	 * @return A Point object of the location of the particle at a given value of t.
+	 */
 	public Point determineLocationGivenPartOfT(double progressIntoT){
 		Point location;
 		progressIntoT %= 1.0;	// It's irrelevant if the particle has done more than one full circle
-		// Multiplying by 100 allows easy use of switch-case to sort out the four quarters of T.
+		// Multiplying by 100 allows easy use of switch-case to sort out the four quarters of T, as switch/case only uses ints.
+		// The multiplication is much less intensive than sin and cosine functions.
 		double x, y;
 		switch( (int)(100*progressIntoT) ){
 		case 0:
@@ -176,11 +193,23 @@ public class SingleParticle{
 		location = new Point(x, y);
 		return location;
 	}
+
+	/**
+	 * Method to calculate the angle subtended after the particle has progressed progressIntoT of one revolution
+	 * @param progressIntoT The proportion of the arc completed, as a value of T
+	 * @return the angle from T=0, measured in radians.
+	 */
 	private double calculateAngleFromPartOfT(double progressIntoT){
 		double angleInRadians = 2*PI*(progressIntoT/period);	// (t/T)*fullCircle
 		return angleInRadians;
 	}
-	public Point[] calculateLocationInSecotionsOfT(int resolution){	// Resolution is how many points to make
+
+	/**
+	 * Method to calculate locations of the particle given a time into T.
+	 * @param resolution The number of pieces to use. If 10, ten points are returned, each one tenth of the way around
+	 * @return an array of Point objects, where each Point is the location af the particle at T/resolution
+	 */
+	public Point[] calculateLocationInSectionsOfT(int resolution){	// Resolution is how many points to make
 		Point[] partsOfT = new Point[resolution];
 		for (int part = 0; part < resolution; part++){
 			partsOfT[part] = determineLocationGivenPartOfT(period*part/resolution);
@@ -205,7 +234,7 @@ public class SingleParticle{
 		iss.setMass(1);
 		System.out.println(iss.calculateForce());
 		
-		for (Point p: iss.calculateLocationInSecotionsOfT(1000)){
+		for (Point p: iss.calculateLocationInSectionsOfT(1000)){
 			System.out.println(p.getX() + ", " + p.getY());
 		}
 		
