@@ -9,18 +9,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -28,6 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 
 public class JavaFXUI extends Application {
     private int height = 600;
@@ -286,7 +277,9 @@ public class JavaFXUI extends Application {
     	cancel.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				circlePopUp.hide();				
+				Platform.exit();	// TODO Remove this.
+				// This closes the whole program, useful for testing purposes.
+				circlePopUp.hide();
 			}
 		});
     	Button okay = new Button("Okay");
@@ -294,13 +287,15 @@ public class JavaFXUI extends Application {
     	okay.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
+				saveCircleSettings(radius, period.isSelected(), periodField, acc);
 				System.out.println("ok");
 				circlePopUp.hide();
 			}
 		});
     	cancelOkay.getChildren().addAll(cancel, okay);
     	
-    	components.getChildren().addAll(lblRadius, radius, lblPeriodOrFreq, periodOrFrequencyBox, periodField, lblAcc, acc, cancelOkay);
+    	components.getChildren().addAll(lblRadius, radius, lblPeriodOrFreq, periodOrFrequencyBox, periodField, lblAcc,
+				acc, cancelOkay);
 
     	Scene stageScene = new Scene(components, 300, 300);
     	circlePopUp.setScene(stageScene);
@@ -308,6 +303,17 @@ public class JavaFXUI extends Application {
     	circlePopUp.show();	
     	// acceleration
     }
+    private void saveCircleSettings(NumberTextField radius, boolean isPeriod, NumberTextField period, NumberTextField
+			acc){
+		particle.setRadius(radius.getValue());
+		if (isPeriod) particle.setPeriod(period.getValue());
+		else particle.setFrequency(period.getValue());
+		particle.setAcceleration(acc.getValue());
+    	System.out.println(particle.getRadius());
+		System.out.println(particle.getPeriod());
+		System.out.println(particle.getFrequency());
+		System.out.println(particle.getAcceleration());
+	}
     private Point findDrawingStartLocations(int radius){
     	Point point = new Point();
     	point.setX((width-radius)/2);
