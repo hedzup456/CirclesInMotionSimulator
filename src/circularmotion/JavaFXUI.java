@@ -9,15 +9,12 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -28,6 +25,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.awt.*;
+import java.net.URL;
+import java.util.Optional;
 
 public class JavaFXUI extends Application {
     private int height = 600;
@@ -54,7 +55,37 @@ public class JavaFXUI extends Application {
 	    root.getChildren().add(makeMenuBar());
 	    primStg = primaryStage;
 	    primaryStage.show();
+	    popup("I am well aware this is all-but non-functional.", "I'm working on it. Lots of stuff going" +
+				" on. In the meantime, though, feel free to peruse my source code and my beautiful javadoc. Also," +
+				" be aware that the latest version of this code is currently available on github at the following url." +
+				"\n\n" +
+				"https://github.com/hedzup456/CirclesInMotionSimulators");
     }
+
+	/**
+	 * Simple method to create a popup window to alert the user of something.
+	 * @param title The title of the window, as a String.
+	 * @param header The header text of the popup window, as a String.
+	 * @param content The content text of the popup window, as a String.
+	 */
+    private void popup(String title, String header, String content){
+		Alert alert = new Alert(Alert.AlertType.WARNING);
+		alert.setTitle(title);
+		alert.setHeaderText(header);
+		alert.setContentText(content);
+		alert.show();
+		new NumberTextField(0.0).bell();
+	}
+
+	/**
+	 * Simple method to create a popup window to alert the user of something.
+	 * Calls the other popup method, passing a null value for header text.
+	 * @param title The title of the window, as a String.
+	 * @param content The content text of the popup window, as a String.
+	 */
+    private void popup(String title, String content){
+		popup(title, null, content);
+	}
 	private Canvas getCanvasFromStage(){
 		Group group = (Group) primStg.getScene().getRoot();
 		return (Canvas) group.getChildren().get(0);
@@ -286,7 +317,9 @@ public class JavaFXUI extends Application {
     	cancel.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				circlePopUp.hide();				
+				Platform.exit(); // Cancel and exit the program.
+				// TODO REMOVE THIS WHEN DONE
+				circlePopUp.hide();
 			}
 		});
     	Button okay = new Button("Okay");

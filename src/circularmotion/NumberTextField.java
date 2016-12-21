@@ -6,9 +6,13 @@ package circularmotion;
 import javafx.scene.control.TextField;
 import javafx.scene.media.AudioClip;
 
+<<<<<<< Updated upstream
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+=======
+import java.io.File;
+>>>>>>> Stashed changes
 import java.util.Random;
 
 /**
@@ -36,17 +40,21 @@ public class NumberTextField extends TextField {
             super.replaceSelection(text);
         }
     }
+<<<<<<< Updated upstream
     public double getValue(){
         String text = this.getText();
         return Double.parseDouble(text);
     }
 
+=======
+>>>>>>> Stashed changes
     /**
      * Simple method to play a warning bell to the user.
      *
      * Customise the URL String in the AudioClip constructor to use different sounds.
      */
     public void bell(){
+<<<<<<< Updated upstream
         Random rng = new Random(); // Added for entertainment purposes when debugging. Will be removed, along with it's
         // use on line +3
         String sndstrm= getClass().getClassLoader().getResource("./res/dss.wav").toString();
@@ -54,6 +62,11 @@ public class NumberTextField extends TextField {
         AudioClip bell = new AudioClip(((rng.nextBoolean()? sndstrm : beepsfx)));   // Randomly decides whether to use
         // the beep sound effect or Darude - Sandstorm.
         System.out.println("The system has belled.");
+=======
+        Random r = new Random();
+        AudioClip bell = new AudioClip("file:///home/rjh/Programming/CirclesInMotionSimulator/res/" + (r.nextBoolean()?"dss.wav":"beep-02.wav"));    // Use python -m http.server in
+        // res folder.
+>>>>>>> Stashed changes
         bell.play();
     }
 
@@ -69,6 +82,10 @@ public class NumberTextField extends TextField {
         } else if (text.matches("\\d")){    // If the character is a digit
             return true;
         } else {
+<<<<<<< Updated upstream
+=======
+            if (text.contains("\\b")) return false;
+>>>>>>> Stashed changes
             bell();
             return false;
         }
