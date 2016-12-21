@@ -70,7 +70,7 @@ public class SingleParticle{
 		this.acceleration = acceleration;
 	}
 	/**
-	 * @param frequency The force the object experiences
+	 * @param force The force the object experiences
 	 */
 	public void setForce(double force) {
 		this.force = force;
@@ -136,6 +136,13 @@ public class SingleParticle{
 		double speed = 2*PI/period;
 		return speed;
 	}
+
+	/**
+	 * Method to calculate the acceleration acting on an object.
+	 * <p>
+	 *     Uses the formula
+	 * </p>
+	 */
 	private void calculateAcceleration(){
 		double acceleration = Math.pow(calculateSpeed(), 2)/radius;
 		setAcceleration(acceleration);
