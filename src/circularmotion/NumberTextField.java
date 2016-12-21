@@ -5,10 +5,6 @@ package circularmotion;
 
 import javafx.scene.control.TextField;
 import javafx.scene.media.AudioClip;
-
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Path;
 import java.util.Random;
 
 /**
@@ -36,10 +32,12 @@ public class NumberTextField extends TextField {
             super.replaceSelection(text);
         }
     }
+
     public double getValue(){
         String text = this.getText();
         return Double.parseDouble(text);
     }
+
 
     /**
      * Simple method to play a warning bell to the user.
