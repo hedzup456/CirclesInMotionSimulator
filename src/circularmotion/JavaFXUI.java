@@ -1,5 +1,8 @@
 package circularmotion;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -25,14 +28,18 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 
 public class JavaFXUI extends Application {
     private int height = 600;
     private int width = 800;
     private SingleParticle particle = new SingleParticle(1, true, 10, 1);
+    private Line radius;
+    private Timeline timeline;
     Stage primStg;
     Image icon = new Image("https://cdn1.iconfinder.com/data/icons/science-filled-1/60/circles-connection-motion-128.png");
 	@Override
@@ -49,8 +56,8 @@ public class JavaFXUI extends Application {
 	    canvas.setId("Main Canvas");	// Allows check of object.
 	    
 	    makeCircle(canvas.getGraphicsContext2D());
-	    
-	    root.getChildren().add(canvas);
+
+	    root.getChildren().addAll(canvas, makeMenuBar(), radius);
 	    root.getChildren().add(makeMenuBar());
 	    primStg = primaryStage;
 	    primaryStage.show();
@@ -115,8 +122,44 @@ public class JavaFXUI extends Application {
         gc.setLineWidth(strokeSize);
         Point p = findDrawingStartLocations(500);
         gc.strokeOval(p.getX(), p.getY(), 500, 500);
+		radius = new Line(p.getX()+250, p.getY()+250, p.getX()+250, p.getY());
+		radius.setStroke(colour);
+		radius.setStrokeWidth(strokeSize);
     }
-    
+
+	/**
+	 * Method to handle the animation of the particle.
+	 * <p>
+	 *     This method will make the program display the force, acceleration, and current velocity of the particle.
+	 * </p>
+	 */
+	private void playAnimation(){
+		timeline = new Timeline();
+		Duration animationDuration;
+		/*
+		The duration of the animation should probably be scaled. For an orbit in the order of five to thirty seconds,
+		it is reasonable to have it act in realtime. For less than five seconds, a time dilation would be useful, and
+		for thirty seconds or more a time acceleration would be of benefit to all involved.
+		 */
+		// TODO Allow the user to set cutoff values.
+		int lowTime = 5;
+		int highTime = 30;
+		double orbitPeriod = particle.getPeriod();
+		if (orbitPeriod < lowTime){
+			// 1000 makes seconds, the 10 means one second takes ten seconds.
+			animationDuration = new Duration(orbitPeriod*1000*10);
+		} else if (lowTime <= orbitPeriod && orbitPeriod < highTime){
+			animationDuration = new Duration( orbitPeriod*1000); // 1000 makes seconds.
+		} else if (highTime <= orbitPeriod){
+			// Ten seconds per second.
+			animationDuration = new Duration(orbitPeriod*1000/10);
+		} else animationDuration = new Duration(1); // Default case, should never occur
+		KeyValue keyValue = new KeyValue(radius.rotateProperty(), 360);
+		KeyFrame keyFrame = new KeyFrame(animationDuration, keyValue);
+		timeline.getKeyFrames().add(keyFrame);
+		timeline.setCycleCount(1000);
+		timeline.play();
+	}
     /**
      * Method to create the terms for the File menu. 
      * <p> 
@@ -125,6 +168,23 @@ public class JavaFXUI extends Application {
      * @param menu the Menu object to add items to.
      */
     private void makeFileMenu(Menu menu){
+    	MenuItem startAnim = new MenuItem("Start Animation");
+    	startAnim.setAccelerator(KeyCombination.keyCombination("Ctrl+Enter"));
+    	startAnim.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				System.out.println("Here we go..");
+				playAnimation();
+			}
+		});
+    	MenuItem stopAnim = new MenuItem("Stop Animation");
+		stopAnim.setAccelerator(KeyCombination.keyCombination("Ctrl+Shift+Enter"));
+		stopAnim.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				timeline.stop();
+			}
+		});
     	MenuItem exit = new MenuItem("Exit");
     	exit.setAccelerator(KeyCombination.keyCombination("Alt+F4"));
         exit.setOnAction(new EventHandler<ActionEvent>() {
@@ -133,7 +193,7 @@ public class JavaFXUI extends Application {
       			Platform.exit(); // Close the program.
 				}
 			});	    	
-    	menu.getItems().addAll(exit);
+    	menu.getItems().addAll(startAnim, stopAnim, exit);
     }
     /**
      * Method to create the terms for the View menu. 
