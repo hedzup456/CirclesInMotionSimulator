@@ -271,75 +271,58 @@ public class JavaFXUI extends Application {
      * @param menu the Menu object to add items to.
      */
     private void makeViewMenu(Menu menu){
+    	// Define an Event Handler to handle ALL colour changes.
+		// Yay, reusable code!
+		EventHandler<ActionEvent> colourChangeHandler = new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				String sourceID = ((MenuItem) event.getSource()).getId();
+				if (sourceID.contains("FG")){	// All logic relevant to foreground colours.
+					if (sourceID.contains("White")) changeForegroundColour(Color.WHITE);
+					else if (sourceID.contains("Orange")) changeForegroundColour(Color.ORANGE);
+					else if (sourceID.contains("Red")) changeForegroundColour(Color.RED);
+					else if (sourceID.contains("Custom")) getCustomColour("Foreground");
+				} else if (sourceID.contains("BG")) {    // All logic relevant to background colours.
+					if (sourceID.contains("Black")) changeBackgroundColour(Color.BLACK);
+					else if (sourceID.contains("Blue")) changeBackgroundColour(Color.BLUE);
+					else if (sourceID.contains("Green")) changeBackgroundColour(Color.GREEN);
+					else if (sourceID.contains("Custom")) getCustomColour("Background");
+				}
+			}
+		};
+
     	// Submenu for foreground colours.
     	Menu changeBGColours = new Menu("Background Colour");
     		MenuItem black = new MenuItem("Black");
     		MenuItem blue = new MenuItem("Blue");
     		MenuItem green = new MenuItem("Green");
     		MenuItem custom = new MenuItem("Custom colour");
-    	
-	    	black.setOnAction(new EventHandler<ActionEvent>() {
-	    		@Override
-	    		public void handle(ActionEvent event) {
-	    			changeBackgroundColour(Color.BLACK);    		
-	    		}
-			});
-	    	blue.setOnAction(new EventHandler<ActionEvent>() {
-	    		@Override
-	    		public void handle(ActionEvent event) {
-	    			changeBackgroundColour(Color.BLUE);    		
-	    		}
-			});
-	    	green.setOnAction(new EventHandler<ActionEvent>() {
-	    		@Override
-	    		public void handle(ActionEvent event) {
-	    			changeBackgroundColour(Color.GREEN);    		
-	    		}
-			});
-	    	custom.setOnAction(new EventHandler<ActionEvent>() {
-	    		@Override
-	    		public void handle(ActionEvent event) {
-					getCustomColour("Background");
-	    		}
-			});
-    	
+			black.setId("Black BG");
+			blue.setId("Blue BG");
+			green.setId("Green BG");
+			custom.setId("Custom BG");
+
     		changeBGColours.getItems().addAll(black, blue, green,custom);
     	// End submenu
     	// Submenu for foreground colours.
-    	Menu changeFGColours = new Menu("Change Foreground Colour");
+		Menu changeFGColours = new Menu("Change Foreground Colour");
     		MenuItem whiteFG = new MenuItem("White");
     		MenuItem orangeFG = new MenuItem("Orange");
     		MenuItem redFG	= new MenuItem("Red");
     		MenuItem customFG = new MenuItem("Custom colour");
-	    	
-    		whiteFG.setOnAction(new EventHandler<ActionEvent>() {
-	    		@Override
-	    		public void handle(ActionEvent event){
-	    			changeForegroundColour(Color.WHITE);
-	    		}
-	    	});
-	    	orangeFG.setOnAction(new EventHandler<ActionEvent>() {
-	    		@Override
-	    		public void handle(ActionEvent event){
-	    			changeForegroundColour(Color.ORANGE);
-	    		}
-	    	});
-	    	redFG.setOnAction(new EventHandler<ActionEvent>() {
-	    		@Override
-	    		public void handle(ActionEvent event){
-	    			changeForegroundColour(Color.RED);
-	    		}
-	    	});
-	    	customFG.setOnAction(new EventHandler<ActionEvent>() {
-	    		@Override
-	    		public void handle(ActionEvent event) {
-	    			getCustomColour("Foreground");
-	    		}
-			});
-   
+	    	whiteFG.setId("White FG");
+	    	orangeFG.setId("Orange FG");
+	    	redFG.setId("Red FG");
+	    	customFG.setId("Custom FG");
+
 	    	changeFGColours.getItems().addAll(whiteFG, orangeFG, redFG, customFG);
-    	// End submenu
-	    // Submenu for stroke size.
+		// End submenu
+		// Set the EventHandler for all the colour changing menu items.
+		for (MenuItem option: changeFGColours.getItems()) option.setOnAction(colourChangeHandler);
+		for (MenuItem option: changeBGColours.getItems()) option.setOnAction(colourChangeHandler);
+	    // Multiline for loops are for losers.
+
+		// Submenu for stroke size.
 	    Menu strokeSize = new Menu("Change Stroke Size");
 		ToggleGroup sizeToggleGroup = new ToggleGroup();
 	    	RadioMenuItem[] sizes = new RadioMenuItem[4];
