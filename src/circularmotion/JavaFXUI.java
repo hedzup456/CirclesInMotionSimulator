@@ -13,16 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
@@ -212,6 +203,66 @@ public class JavaFXUI extends Application {
 			});	    	
     	menu.getItems().addAll(startAnim, stopAnim, exit);
     }
+
+	/**
+	 * Method handles setting the relevant colours when a custom colour is requested.
+	 * <p>
+	 *     God help anyone who chooses to use this code again. It's bordering on abuse of pretty much everything I know.
+	 *     I'm so sorry.
+	 * </p>
+	 *
+	 * @param backgroundOrForeground String value to dictate whether the foreground or background is changed.
+	 */
+	private void getCustomColour(String backgroundOrForeground){
+		// Looks like I'm going to have to create a new window.
+		Stage colourPicker = new Stage();
+		colourPicker.setTitle("Pick a colour");
+		colourPicker.initModality(Modality.APPLICATION_MODAL);
+		colourPicker.getIcons().add(new Image("http://icons.iconarchive.com/icons/iconsmind/outline/512/Gears-icon.png"));
+		// Image is free for use.
+
+		// Define a new colour picker with the current colour as the default.
+		ColorPicker colPick = new ColorPicker(
+				Color.valueOf(getCanvasFromStage().getGraphicsContext2D().getStroke().toString()));
+		colPick.setId(backgroundOrForeground);	// Like I said, I'm sorry.
+		colPick.setVisible(true);
+		colPick.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				if (colPick.getId().contains("Foreground")){
+					changeForegroundColour(colPick.getValue());
+				} else if (colPick.getId().contains("Background")){
+					changeBackgroundColour(colPick.getValue());
+				}
+			}
+		});
+
+		VBox vBox = new VBox();
+		String text = "Select a colour to use as the ";
+		if (backgroundOrForeground.contains("Background")){
+			text = text + "background colour.";
+		} else if (backgroundOrForeground.equals("Foreground")){
+			text = text + "foreground colour.";
+		}
+		Label label = new Label(text);
+		Button close = new Button("Close");
+		close.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				colourPicker.close();
+			}
+		});
+		vBox.getChildren().addAll(label, colPick, close);
+
+		Scene stageScene = new Scene(vBox);
+		colourPicker.setScene(stageScene);
+		colourPicker.setAlwaysOnTop(true);
+		colourPicker.show();
+		// Well that was a fucking rollercoaster from start to finish.
+		// I wonder why JavaFX doesn't support a ColorPicker in a MenuItem.
+		// Oh well. It's only resulted in a disgrace for everyone involved.
+	}
+
     /**
      * Method to create the terms for the View menu. 
      * <p> 
@@ -248,8 +299,7 @@ public class JavaFXUI extends Application {
 	    	custom.setOnAction(new EventHandler<ActionEvent>() {
 	    		@Override
 	    		public void handle(ActionEvent event) {
-	    			// TODO Implement custom colour picking.
-	    			changeBackgroundColour(Color.ORANGERED);    		
+					getCustomColour("Background");
 	    		}
 			});
     	
@@ -283,8 +333,7 @@ public class JavaFXUI extends Application {
 	    	customFG.setOnAction(new EventHandler<ActionEvent>() {
 	    		@Override
 	    		public void handle(ActionEvent event) {
-	    			// TODO Implement custom colour picking.
-	    			changeForegroundColour(Color.ORANGERED);		
+	    			getCustomColour("Foreground");
 	    		}
 			});
    
@@ -352,11 +401,11 @@ public class JavaFXUI extends Application {
 
     	VBox components = new VBox();
     	components.setAlignment(Pos.TOP_CENTER);
-    	
+
     	Label lblRadius = new Label("Radius");
     	NumberTextField radius = new NumberTextField(particle.getRadius());
     	radius.setTooltip(new Tooltip("Set the desired radius of your circle."));
-    	
+
        	NumberTextField periodField = new NumberTextField(particle.getPeriod());
     	Label lblPeriodOrFreq = new Label("Period or Frequecy");
     	HBox periodOrFrequencyBox = new HBox();
@@ -393,7 +442,7 @@ public class JavaFXUI extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				Platform.exit(); // Cancel and exit the program.
-				// TODO REMOVE THIS WHEN DONE
+				// TODO REMOVE EXIT WHEN DONE
 				circlePopUp.hide();
 			}
 		});
