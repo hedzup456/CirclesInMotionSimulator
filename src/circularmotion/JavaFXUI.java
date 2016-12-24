@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -91,10 +92,26 @@ public class JavaFXUI extends Application {
     private void popup(String title, String content){
 		popup(title, null, content);
 	}
+
+	/**
+	 * Method finds and returns the main canvas from the group.
+	 * <p>
+	 *     This uses the fact that the main canvas has an ID of (imaginatively) "Main Canvas". This allows the program
+	 *     to identify the correct subnode in the Javafx graph.
+	 * </p>
+	 * @return The main Canvas object from the primary stage.
+	 */
+	// TODO Abstract this out to be finding any subnode, given an ID?
 	private Canvas getCanvasFromStage(){
 		Group group = (Group) primStg.getScene().getRoot();
-		return (Canvas) group.getChildren().get(0);
-		//	Canvas is the first item added.
+		int i = 0;
+		while (i>= 0){
+			Node node = group.getChildren().get(i);
+			if (node.getId().equals("Main Canvas")) return (Canvas) node;
+			else i++;
+		}
+		return new Canvas();
+		// Should never be reached, but oh well. It's neater than suppressing warnings.
 	}
 	private void changeBackgroundColour(Paint colour){
 		primStg.getScene().setFill(colour);
