@@ -34,8 +34,8 @@ public class JavaFXUI extends Application {
     private Timeline timeline;
     Stage primStg;
     Image icon = new Image("https://cdn1.iconfinder.com/data/icons/science-filled-1/60/circles-connection-motion-128.png");
-	@Override
 
+    @Override
 	public void start(Stage primaryStage) {
 	    Group root = new Group();
 	    Scene scene = new Scene(root, width, height, Color.BLACK);
@@ -62,6 +62,7 @@ public class JavaFXUI extends Application {
 
 	/**
 	 * Simple method to create a popup window to alert the user of something.
+	 *
 	 * @param title The title of the window, as a String.
 	 * @param header The header text of the popup window, as a String.
 	 * @param content The content text of the popup window, as a String.
@@ -76,7 +77,9 @@ public class JavaFXUI extends Application {
 
 	/**
 	 * Simple method to create a popup window to alert the user of something.
-	 * Calls the other popup method, passing a null value for header text.
+	 * <p>
+	 *		Calls the other popup method, passing a null value for header text.
+	 * </p>
 	 * @param title The title of the window, as a String.
 	 * @param content The content text of the popup window, as a String.
 	 */
@@ -104,6 +107,7 @@ public class JavaFXUI extends Application {
 		return new Canvas();
 		// Should never be reached, but oh well. It's neater than suppressing warnings.
 	}
+	// TODO Javadoc comments.
 	private void changeBackgroundColour(Paint colour){
 		primStg.getScene().setFill(colour);
 	}
@@ -168,41 +172,6 @@ public class JavaFXUI extends Application {
 		timeline.setCycleCount(1000);
 		timeline.play();
 	}
-    /**
-     * Method to create the terms for the File menu. 
-     * <p> 
-     * Moved out of the makeMenuBar method to allow both folding of unneeded code and to make reuse of code easier should it be needed.
-     * 
-     * @param menu the Menu object to add items to.
-     */
-    private void makeFileMenu(Menu menu){
-    	MenuItem startAnim = new MenuItem("Start Animation");
-    	startAnim.setAccelerator(KeyCombination.keyCombination("Ctrl+Enter"));
-    	startAnim.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				System.out.println("Here we go..");
-				playAnimation();
-			}
-		});
-    	MenuItem stopAnim = new MenuItem("Stop Animation");
-		stopAnim.setAccelerator(KeyCombination.keyCombination("Ctrl+Shift+Enter"));
-		stopAnim.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				timeline.stop();
-			}
-		});
-    	MenuItem exit = new MenuItem("Exit");
-    	exit.setAccelerator(KeyCombination.keyCombination("Alt+F4"));
-        exit.setOnAction(new EventHandler<ActionEvent>() {
-    		@Override
-			public void handle(ActionEvent event) {
-      			Platform.exit(); // Close the program.
-				}
-			});	    	
-    	menu.getItems().addAll(startAnim, stopAnim, exit);
-    }
 
 	/**
 	 * Method handles setting the relevant colours when a custom colour is requested.
@@ -263,11 +232,46 @@ public class JavaFXUI extends Application {
 		// Oh well. It's only resulted in a disgrace for everyone involved.
 	}
 
-    /**
-     * Method to create the terms for the View menu. 
+	/**
+     * Method to create the terms for the File menu. 
      * <p> 
      * Moved out of the makeMenuBar method to allow both folding of unneeded code and to make reuse of code easier should it be needed.
      * 
+     * @param menu the Menu object to add items to.
+     */
+    private void makeFileMenu(Menu menu){
+    	MenuItem startAnim = new MenuItem("Start Animation");
+    	startAnim.setAccelerator(KeyCombination.keyCombination("Ctrl+Enter"));
+    	startAnim.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				System.out.println("Here we go..");
+				playAnimation();
+			}
+		});
+    	MenuItem stopAnim = new MenuItem("Stop Animation");
+		stopAnim.setAccelerator(KeyCombination.keyCombination("Ctrl+Shift+Enter"));
+		stopAnim.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				timeline.stop();
+			}
+		});
+    	MenuItem exit = new MenuItem("Exit");
+    	exit.setAccelerator(KeyCombination.keyCombination("Alt+F4"));
+        exit.setOnAction(new EventHandler<ActionEvent>() {
+    		@Override
+			public void handle(ActionEvent event) {
+      			Platform.exit(); // Close the program.
+				}
+			});	    	
+    	menu.getItems().addAll(startAnim, stopAnim, exit);
+    }
+	/**
+     * Method to create the terms for the View menu. 
+     * <p> 
+     * 		Moved out of the makeMenuBar method to allow both folding of unneeded code and to make reuse of code easier should it be needed.
+     * </p>
      * @param menu the Menu object to add items to.
      */
     private void makeViewMenu(Menu menu){
@@ -291,18 +295,19 @@ public class JavaFXUI extends Application {
 			}
 		};
 
-    	// Submenu for foreground colours.
+    	// Submenu for background colours.
     	Menu changeBGColours = new Menu("Background Colour");
     		MenuItem black = new MenuItem("Black");
     		MenuItem blue = new MenuItem("Blue");
     		MenuItem green = new MenuItem("Green");
     		MenuItem custom = new MenuItem("Custom colour");
+			// Set the IDs for the EventHandler
 			black.setId("Black BG");
 			blue.setId("Blue BG");
 			green.setId("Green BG");
 			custom.setId("Custom BG");
 
-    		changeBGColours.getItems().addAll(black, blue, green,custom);
+		changeBGColours.getItems().addAll(black, blue, green,custom);
     	// End submenu
     	// Submenu for foreground colours.
 		Menu changeFGColours = new Menu("Change Foreground Colour");
@@ -310,12 +315,13 @@ public class JavaFXUI extends Application {
     		MenuItem orangeFG = new MenuItem("Orange");
     		MenuItem redFG	= new MenuItem("Red");
     		MenuItem customFG = new MenuItem("Custom colour");
+    		// Set the IDs for the EventHandler
 	    	whiteFG.setId("White FG");
 	    	orangeFG.setId("Orange FG");
 	    	redFG.setId("Red FG");
 	    	customFG.setId("Custom FG");
 
-	    	changeFGColours.getItems().addAll(whiteFG, orangeFG, redFG, customFG);
+    	changeFGColours.getItems().addAll(whiteFG, orangeFG, redFG, customFG);
 		// End submenu
 		// Set the EventHandler for all the colour changing menu items.
 		for (MenuItem option: changeFGColours.getItems()) option.setOnAction(colourChangeHandler);
@@ -344,11 +350,12 @@ public class JavaFXUI extends Application {
 	    // End of menu items.
     	menu.getItems().addAll(changeBGColours, changeFGColours, strokeSize);
     }
-    /**
+	/**
      * Method to create the terms for the Edit menu. 
      * <p> 
-     * Moved out of the makeMenuBar method to allow both folding of unneeded code and to make reuse of code easier should it be needed.
-     * 
+     * 		Moved out of the makeMenuBar method to allow both folding of unneeded code and to make reuse of code easier should it be needed.
+     * </p>
+	 *
      * @param menu the Menu object to add items to.
      */
     private void makeEditMenu(Menu menu){
@@ -362,6 +369,7 @@ public class JavaFXUI extends Application {
 		});
     	menu.getItems().addAll(newCircleWindow);
     }
+
     private MenuBar makeMenuBar(){
     	MenuBar mb = new MenuBar();
     	Menu file = new Menu("File");
@@ -375,6 +383,7 @@ public class JavaFXUI extends Application {
     	mb.getMenus().addAll(file, edit, view);
     	return mb;
     }
+    // TODO JAVADOC
     private void getNewCirclePropertiesPopup(){
     	Stage circlePopUp = new Stage();
     	circlePopUp.setTitle("Set up Circle");
