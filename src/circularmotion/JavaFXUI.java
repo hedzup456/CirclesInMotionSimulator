@@ -30,10 +30,11 @@ public class JavaFXUI extends Application {
     private int height = 600;
     private int width = 800;
     private SingleParticle particle = new SingleParticle(1, true, 10, 1);
-    private Line radius;
+    private Group movingParts = new Group();
     private Timeline timeline;
     Stage primStg;
     Image icon = new Image("https://cdn1.iconfinder.com/data/icons/science-filled-1/60/circles-connection-motion-128.png");
+    // Image is free for use.
 
     @Override
 	public void start(Stage primaryStage) {
@@ -49,15 +50,16 @@ public class JavaFXUI extends Application {
 	    
 	    makeCircle(canvas.getGraphicsContext2D());
 
-	    root.getChildren().addAll(canvas, makeMenuBar(), radius);
+	    root.getChildren().addAll(canvas, makeMenuBar(), movingParts);
 	    root.getChildren().add(makeMenuBar());
 	    primStg = primaryStage;
 	    primaryStage.show();
-	    popup("I am well aware this is all-but non-functional.", "I'm working on it. Lots of stuff going" +
+	    /* popup("I am well aware this is all-but non-functional.", "I'm working on it. Lots of stuff going" +
 				" on. In the meantime, though, feel free to peruse my source code and my beautiful javadoc. Also," +
 				" be aware that the latest version of this code is currently available on github at the following url." +
 				"\n\n" +
 				"https://github.com/hedzup456/CirclesInMotionSimulators");
+		*/
     }
 
 	/**
@@ -134,9 +136,10 @@ public class JavaFXUI extends Application {
         gc.setLineWidth(strokeSize);
         Point p = findDrawingStartLocations(500);
         gc.strokeOval(p.getX(), p.getY(), 500, 500);
-		radius = new Line(p.getX()+250, p.getY()+250, p.getX()+250, p.getY());
+		Line radius = new Line(p.getX()+250, p.getY()+250, p.getX()+250, p.getY());
 		radius.setStroke(colour);
 		radius.setStrokeWidth(strokeSize);
+		movingParts.getChildren().add(radius);
     }
 
 	/**
@@ -166,7 +169,7 @@ public class JavaFXUI extends Application {
 			// Ten seconds per second.
 			animationDuration = new Duration(orbitPeriod*1000/10);
 		} else animationDuration = new Duration(1); // Default case, should never occur
-		KeyValue keyValue = new KeyValue(radius.rotateProperty(), 360);
+		KeyValue keyValue = new KeyValue(movingParts.rotateProperty(), 360);
 		KeyFrame keyFrame = new KeyFrame(animationDuration, keyValue);
 		timeline.getKeyFrames().add(keyFrame);
 		timeline.setCycleCount(1000);
@@ -364,8 +367,11 @@ public class JavaFXUI extends Application {
     	newCircleWindow.setOnAction(new EventHandler<ActionEvent>() {
     		@Override
     		public void handle(ActionEvent event) {
-    			getNewCirclePropertiesPopup();
-    		}
+    			CirclePropertiesUI cpui = new CirclePropertiesUI(particle);
+    			cpui.show();
+
+    			particle = cpui.getParticle();
+			}
 		});
     	menu.getItems().addAll(newCircleWindow);
     }
@@ -383,93 +389,8 @@ public class JavaFXUI extends Application {
     	mb.getMenus().addAll(file, edit, view);
     	return mb;
     }
-    // TODO JAVADOC
-    private void getNewCirclePropertiesPopup(){
-    	Stage circlePopUp = new Stage();
-    	circlePopUp.setTitle("Set up Circle");
-    	circlePopUp.initModality(Modality.APPLICATION_MODAL);
-    	circlePopUp.getIcons().add(new Image("http://icons.iconarchive.com/icons/iconsmind/outline/512/Gears-icon.png"));
-    	// Image is free for use.
 
-    	VBox components = new VBox();
-    	components.setAlignment(Pos.TOP_CENTER);
 
-    	Label lblRadius = new Label("Radius");
-    	NumberTextField radius = new NumberTextField(particle.getRadius());
-    	radius.setTooltip(new Tooltip("Set the desired radius of your circle."));
-
-       	NumberTextField periodField = new NumberTextField(particle.getPeriod());
-    	Label lblPeriodOrFreq = new Label("Period or Frequecy");
-    	HBox periodOrFrequencyBox = new HBox();
-    	periodOrFrequencyBox.setAlignment(Pos.CENTER);
-    	ToggleGroup perOrFreq = new ToggleGroup();
-    	ToggleButton period = new ToggleButton("Period");
-    	period.setToggleGroup(perOrFreq);
-    	period.setSelected(true);
-    	period.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				periodField.setText(particle.getPeriod());
-			}
-		});
-    	ToggleButton frequency = new ToggleButton("Frequency");
-    	frequency.setToggleGroup(perOrFreq);
-    	frequency.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				periodField.setText(particle.getFrequency());
-			}
-		});
-    	periodOrFrequencyBox.getChildren().addAll(period, frequency);
-    	
-    	Label lblAcc = new Label("Acceleration");
-    	NumberTextField acc = new NumberTextField(particle.getAcceleration());
-    	acc.setTooltip(new Tooltip("Set the desired acceleration of your particle."));
-    	
-    	HBox cancelOkay = new HBox();
-    	cancelOkay.setAlignment(Pos.CENTER);
-    	Button cancel = new Button("Cancel");
-    	cancel.setTooltip(new Tooltip("This will discard your changes and close the edit window."));
-    	cancel.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				Platform.exit(); // Cancel and exit the program.
-				// TODO REMOVE EXIT WHEN DONE
-				circlePopUp.hide();
-			}
-		});
-    	Button okay = new Button("Okay");
-    	okay.setTooltip(new Tooltip("This will save your changes and reflect them in the main display."));
-    	okay.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				saveCircleSettings(radius, period.isSelected(), periodField, acc);
-				System.out.println("ok");
-				circlePopUp.hide();
-			}
-		});
-    	cancelOkay.getChildren().addAll(cancel, okay);
-    	
-    	components.getChildren().addAll(lblRadius, radius, lblPeriodOrFreq, periodOrFrequencyBox, periodField, lblAcc,
-				acc, cancelOkay);
-
-    	Scene stageScene = new Scene(components, 300, 300);
-    	circlePopUp.setScene(stageScene);
-    	circlePopUp.setAlwaysOnTop(true);
-    	circlePopUp.show();	
-    	// acceleration
-    }
-    private void saveCircleSettings(NumberTextField radius, boolean isPeriod, NumberTextField period, NumberTextField
-			acc){
-		particle.setRadius(radius.getValue());
-		if (isPeriod) particle.setPeriod(period.getValue());
-		else particle.setFrequency(period.getValue());
-		particle.setAcceleration(acc.getValue());
-    	System.out.println(particle.getRadius());
-		System.out.println(particle.getPeriod());
-		System.out.println(particle.getFrequency());
-		System.out.println(particle.getAcceleration());
-	}
     private Point findDrawingStartLocations(int radius){
     	Point point = new Point();
     	point.setX((width-radius)/2);
