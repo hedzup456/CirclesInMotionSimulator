@@ -12,8 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.awt.image.BufferedImage;
-
 // This is literally done for no reason other than more class files = better.
 // Okay also because it's neater to have it as a separate object, and it's easier to modify and stuff.
 // But shush.
@@ -96,7 +94,7 @@ public class CirclePropertiesUI {
         EventHandler<ActionEvent> handlePeriodOrFrequency = new EventHandler<ActionEvent>() {
             @Override
             public void handle (ActionEvent event) {
-                if(((Button)event.getSource()).getId().equals("Frequency")) periodField.setText(particle.getFrequency());
+                if(((ToggleButton)event.getSource()).getId().equals("Frequency")) periodField.setText(particle.getFrequency());
                 else periodField.setText(particle.getPeriod());
             }
         };
