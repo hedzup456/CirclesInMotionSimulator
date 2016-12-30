@@ -20,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Modality;
@@ -32,6 +33,7 @@ public class JavaFXUI extends Application {
     private int width = 800;
     private SingleParticle particle = new SingleParticle(1, true, 10, 1);
     private Group movingParts = new Group();
+    private Circle circle;
     private Timeline timeline;
     Stage primStg;
     Image icon = new Image("https://cdn1.iconfinder.com/data/icons/science-filled-1/60/circles-connection-motion-128.png");
@@ -39,20 +41,19 @@ public class JavaFXUI extends Application {
 
     @Override
 	public void start(Stage primaryStage) {
+    	particle.setCentre(new Point(300, 300));
+
 	    Group root = new Group();
 	    Scene scene = new Scene(root, width, height, Color.BLACK);
 	    primaryStage.setScene(scene);
 	    	    
 	    primaryStage.setTitle("Circles in Motion");
 	    primaryStage.getIcons().add(icon);
-	    
-	    Canvas canvas = new Canvas(width, height);
-	    canvas.setId("Main Canvas");	// Allows check of object.
-	    
-	    makeCircle(canvas.getGraphicsContext2D());
 
-	    root.getChildren().addAll(canvas, makeMenuBar(), movingParts);
-	    root.getChildren().add(makeMenuBar());
+	    makeCircle(Color.WHITE, 2.0);
+	    setUpMovingParts(particle.getCentre(), Color.WHITE, 2.0);
+	    root.getChildren().addAll(circle, makeMenuBar(), movingParts);
+
 	    primStg = primaryStage;
 	    primaryStage.show();
 	    /* popup("I am well aware this is all-but non-functional.", "I'm working on it. Lots of stuff going" +
@@ -62,6 +63,21 @@ public class JavaFXUI extends Application {
 				"https://github.com/hedzup456/CirclesInMotionSimulators");
 		*/
     }
+
+	/**
+	 * Create the circle. Circles are good.
+	 * @param colour Take a wild fuckin guess buddy. (Paint or Paint subclass, please)
+	 * @param width How fat do ya want ya line? As a double.
+	 */
+	private void makeCircle(Paint colour, double width){
+		if (circle == null){
+			circle = new Circle(particle.getCentre().getX(), particle.getCentre().getY(), 250);
+			circle.setId("Circle");
+			circle.setFill(Color.TRANSPARENT);
+		}
+		circle.setStroke(colour);
+		circle.setStrokeWidth(width);
+	}
 
 	/**
 	 * Simple method to create a popup window to alert the user of something.
@@ -90,57 +106,18 @@ public class JavaFXUI extends Application {
 		popup(title, null, content);
 	}
 
-	/**
-	 * Method finds and returns the main canvas from the group.
-	 * <p>
-	 *     This uses the fact that the main canvas has an ID of (imaginatively) "Main Canvas". This allows the program
-	 *     to identify the correct subnode in the Javafx graph.
-	 * </p>
-	 * @return The main Canvas object from the primary stage.
-	 */
-	// TODO Abstract this out to be finding any subnode, given an ID?
-	private Canvas getCanvasFromStage(){
-		Group group = (Group) primStg.getScene().getRoot();
-		int i = 0;
-		while (i>= 0){
-			Node node = group.getChildren().get(i);
-			if (node.getId().equals("Main Canvas")) return (Canvas) node;
-			else i++;
-		}
-		return new Canvas();
-		// Should never be reached, but oh well. It's neater than suppressing warnings.
-	}
 	// TODO Javadoc comments.
 	private void changeBackgroundColour(Paint colour){
 		primStg.getScene().setFill(colour);
 	}
 	private void changeForegroundColour(Paint colour){
-		Canvas cvs = getCanvasFromStage();
-		makeCircle(cvs.getGraphicsContext2D(), colour, cvs.getGraphicsContext2D().getLineWidth());
-		// Get the same line width as before.
+		makeCircle(colour, circle.getStrokeWidth());
+		setUpMovingParts(particle.getCentre(), colour, circle.getStrokeWidth());
 	}
 	private void changeStrokeSize(double size){
-		Canvas cvs = getCanvasFromStage();
-		Paint colour = cvs.getGraphicsContext2D().getStroke();
-		if (size < cvs.getGraphicsContext2D().getLineWidth()){
-			/*	Needs to redraw for thinner size else it keeps the old circle visible.  This just draws the background
-			 *	colour to hide any old lines. */
-			makeCircle(cvs.getGraphicsContext2D(), primStg.getScene().getFill(), 1000);
-		}
-		makeCircle(cvs.getGraphicsContext2D(), colour, size);	// Keep same colour even if changing down a size.
+		makeCircle(circle.getStroke(), size);
+		setUpMovingParts(particle.getCentre(), circle.getStroke(), size);
 	}
-	private void makeCircle(GraphicsContext gc){
-		makeCircle(gc, Color.AZURE, 2);
-	}
-    private void makeCircle(GraphicsContext gc, Paint colour, double strokeSize){
-        gc.setStroke(colour);
-        gc.setLineWidth(strokeSize);
-        Point p = findDrawingStartLocations(500);
-        gc.strokeOval(p.getX(), p.getY(), 500, 500);
-        p.setXY(p.getX() + 250, p.getY() + 250);    // Adjust the centre for ease reasons.
-		setUpMovingParts(p, colour, strokeSize);
-    }
-
 
 	/**
 	 * Method to handle setting up, resizing and colouring all of the moving parts
@@ -211,8 +188,7 @@ public class JavaFXUI extends Application {
 			animationDuration = new Duration(orbitPeriod*1000/10);
 		} else animationDuration = new Duration(1); // Default case, should never occur
 
-		Point p = findDrawingStartLocations(500);
-		Rotate rot = new Rotate(1, p.getX()+250, p.getY()+250);
+		Rotate rot = new Rotate(0.1, particle.getCentre().getX(), particle.getCentre().getY());
 
 		movingParts.getTransforms().add(rot);
 
@@ -241,8 +217,9 @@ public class JavaFXUI extends Application {
 		// Image is free for use.
 
 		// Define a new colour picker with the current colour as the default.
-		ColorPicker colPick = new ColorPicker(
-				Color.valueOf(getCanvasFromStage().getGraphicsContext2D().getStroke().toString()));
+		ColorPicker colPick = new ColorPicker (Color.valueOf( ((backgroundOrForeground.equals("Foreground"))?
+				(circle.getStroke()) : (primStg.getScene().getFill())) .toString()));
+		// Ternary operators are pretty cool.
 		colPick.setId(backgroundOrForeground);	// Like I said, I'm sorry.
 		colPick.setVisible(true);
 		colPick.setOnAction(new EventHandler<ActionEvent>() {
@@ -271,6 +248,7 @@ public class JavaFXUI extends Application {
 				colourPicker.close();
 			}
 		});
+
 		vBox.getChildren().addAll(label, colPick, close);
 
 		Scene stageScene = new Scene(vBox);

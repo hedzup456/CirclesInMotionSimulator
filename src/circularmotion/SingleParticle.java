@@ -15,7 +15,7 @@ public class SingleParticle{
 	private	double mass = 0;	// Zero by default
 	private double period;
 	private double radius;
-	private Point centre = new Point(500,500);	// Point initialises as 0,0 given no arguments
+	private Point centre = new Point(250,250);	// Point initialises as 0,0 given no arguments
 	
 	//	Getters
 	/**
