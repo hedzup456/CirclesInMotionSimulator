@@ -21,6 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -136,10 +137,50 @@ public class JavaFXUI extends Application {
         gc.setLineWidth(strokeSize);
         Point p = findDrawingStartLocations(500);
         gc.strokeOval(p.getX(), p.getY(), 500, 500);
-		Line radius = new Line(p.getX()+250, p.getY()+250, p.getX()+250, p.getY());
-		radius.setStroke(colour);
-		radius.setStrokeWidth(strokeSize);
-		movingParts.getChildren().add(radius);
+        p.setXY(p.getX() + 250, p.getY() + 250);    // Adjust the centre for ease reasons.
+		setUpMovingParts(p, colour, strokeSize);
+    }
+
+
+	/**
+	 * Method to handle setting up, resizing and colouring all of the moving parts
+	 * @param centre Point object holding the coordinates of the centre.
+	 * @param colour Paint object for the colour to fill the parts.
+	 * @param strokeSize double representation of the stroke size to set the lines to.
+	 */
+	private void setUpMovingParts(Point centre, Paint colour, double strokeSize){
+	    if (movingParts.getChildren().size() == 0) {
+		    Line radius = new Line(centre.getX(), centre.getY(), centre.getX(), centre.getY() - 250);
+		    radius.setStroke(colour);
+		    radius.setStrokeWidth(strokeSize);
+		    radius.setId("Radius");
+
+		    Group arrowhead = new Group();
+		    arrowhead.getChildren().addAll(
+				    new Line(centre.getX(), centre.getY(), centre.getX() + 10, centre.getY() - 10),
+				    new Line(centre.getX(), centre.getY(), centre.getX() - 10, centre.getY() - 10));
+		    for ( Node part : arrowhead.getChildren() ) {
+			    ((Line) part).setStroke(colour);
+			    ((Line) part).setStrokeWidth(strokeSize);
+		    }
+		    arrowhead.setId("Arrowhead");
+
+		    movingParts.getChildren().addAll(radius, arrowhead);
+	    } else {    // If the objects already exist
+		    for (Node node: movingParts.getChildren()) {
+			    if (node.getId().equals("Radius")){
+			    	// setStroke and sSW are not part of node, but are part of Line. Casting allows this without
+				    // reallocation
+				    ((Line) node).setStroke(colour);
+				    ((Line) node).setStrokeWidth(strokeSize);
+			    } else if (node.getId().equals("Arrowhead")){
+					for (Node subnode: ((Group) node).getChildren()){
+						((Line) subnode).setStroke(colour);
+						((Line) subnode).setStrokeWidth(strokeSize);
+					}
+			    }
+		    }
+	    }
     }
 
 	/**
@@ -169,7 +210,13 @@ public class JavaFXUI extends Application {
 			// Ten seconds per second.
 			animationDuration = new Duration(orbitPeriod*1000/10);
 		} else animationDuration = new Duration(1); // Default case, should never occur
-		KeyValue keyValue = new KeyValue(movingParts.rotateProperty(), 360);
+
+		Point p = findDrawingStartLocations(500);
+		Rotate rot = new Rotate(1, p.getX()+250, p.getY()+250);
+
+		movingParts.getTransforms().add(rot);
+
+		KeyValue keyValue = new KeyValue(rot.angleProperty(), 360);
 		KeyFrame keyFrame = new KeyFrame(animationDuration, keyValue);
 		timeline.getKeyFrames().add(keyFrame);
 		timeline.setCycleCount(1000);
