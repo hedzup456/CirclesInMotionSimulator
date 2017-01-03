@@ -50,7 +50,7 @@ public class NumberTextField extends TextField {
         Random rng = new Random(); // Added for entertainment purposes when debugging. Will be removed, along with it's
         // use on line +3
         try {
-            String weAren1 = getClass().getClassLoader().getResource("./res/WANO.mp3").toString();  // We ar number one
+            String weAren1 = getClass().getClassLoader().getResource("./res/WANO.wav").toString();  // We ar number one
             String sndstrm = getClass().getClassLoader().getResource("./res/dss.wav").toString();   // Darude
             String beepsfx = getClass().getClassLoader().getResource("./res/beep-02.wav").toString();   // Beep
             AudioClip bell = new AudioClip(((rng.nextBoolean()? sndstrm : weAren1)));   // Randomly decides whether to use
