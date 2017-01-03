@@ -128,10 +128,11 @@ public class JavaFXUI extends Application {
 	 */
 	private void setUpMovingParts(Point centre, Paint colour, double strokeSize){
 	    if (movingParts.getChildren().size() == 0) {
-		    Line radius = new Line(centre.getX(), centre.getY(), centre.getX(), centre.getY() - 250);
+		    // Radius and central arrowhead
+	    	Line radius = new Line(centre.getX(), centre.getY(), centre.getX(), centre.getY() - 250);
 		    radius.setStroke(colour);
 		    radius.setStrokeWidth(strokeSize);
-		    radius.setId("Radius");
+		    radius.setId("Line Radius");
 
 		    Group arrowhead = new Group();
 		    arrowhead.getChildren().addAll(
@@ -143,15 +144,34 @@ public class JavaFXUI extends Application {
 		    }
 		    arrowhead.setId("Arrowhead");
 
-		    movingParts.getChildren().addAll(radius, arrowhead);
+			// Tangential stuffs
+			Line tangentialVelocity =
+					new Line(centre.getX(), centre.getY()-250, centre.getX()+150, centre.getY()-250);
+			tangentialVelocity.setId("Line TangV");
+			tangentialVelocity.setStroke(colour);
+			tangentialVelocity.setStrokeWidth(strokeSize);
+
+			Group arrowhead2 = new Group();
+			arrowhead2.getChildren().addAll(
+					new Line(centre.getX()+150, centre.getY()-250,
+							centre.getX() + 140, centre.getY() - 260),
+					new Line(centre.getX()+150, centre.getY()-250,
+							centre.getX() + 140, centre.getY() - 240));
+			for ( Node part : arrowhead2.getChildren() ) {
+				((Line) part).setStroke(colour);
+				((Line) part).setStrokeWidth(strokeSize);
+			}
+			arrowhead2.setId("Arrowhead TangV");
+
+		    movingParts.getChildren().addAll(radius, arrowhead, tangentialVelocity, arrowhead2);
 	    } else {    // If the objects already exist
 		    for (Node node: movingParts.getChildren()) {
-			    if (node.getId().equals("Radius")){
+			    if (node.getId().contains("Line")){
 			    	// setStroke and sSW are not part of node, but are part of Line. Casting allows this without
 				    // reallocation
 				    ((Line) node).setStroke(colour);
 				    ((Line) node).setStrokeWidth(strokeSize);
-			    } else if (node.getId().equals("Arrowhead")){
+			    } else if (node.getId().contains("Arrowhead")){
 					for (Node subnode: ((Group) node).getChildren()){
 						((Line) subnode).setStroke(colour);
 						((Line) subnode).setStrokeWidth(strokeSize);
