@@ -43,17 +43,25 @@ public class NumberTextField extends TextField {
     /**
      * Simple method to play a warning bell to the user.
      *
-     * Customise the resource locations (relative to the bin folder) for different sounds
+     * Customise the resource locations (relative to the bin folder) for different sounds.
+     * This means the res folder must be on the same level as the package folder.
      */
     public void bell(){
         Random rng = new Random(); // Added for entertainment purposes when debugging. Will be removed, along with it's
         // use on line +3
-        String sndstrm = getClass().getClassLoader().getResource("./res/dss.wav").toString();   // Darude
-        String beepsfx = getClass().getClassLoader().getResource("./res/beep-02.wav").toString();   // Beep
-        AudioClip bell = new AudioClip(((rng.nextBoolean()? sndstrm : beepsfx)));   // Randomly decides whether to use
-        // the beep sound effect or Darude - Sandstorm.
-        System.out.println("The system has belled.");
-        bell.play();
+        try {
+            String weAren1 = getClass().getClassLoader().getResource("./res/WANO.mp3").toString();  // We ar number one
+            String sndstrm = getClass().getClassLoader().getResource("./res/dss.wav").toString();   // Darude
+            String beepsfx = getClass().getClassLoader().getResource("./res/beep-02.wav").toString();   // Beep
+            AudioClip bell = new AudioClip(((rng.nextBoolean()? sndstrm : weAren1)));   // Randomly decides whether to use
+            // TODO probably should remove the fact the We Are Number One is a valid bell sound.
+            // the beep sound effect or Darude - Sandstorm.
+            bell.play();
+        } catch (NullPointerException npe){
+            System.out.println("File not found. It looks like something has happened to the audio files.");
+        } finally {
+            System.out.println("The system has belled.");
+        }
     }
 
     /**
