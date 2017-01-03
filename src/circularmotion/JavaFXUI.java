@@ -1,5 +1,6 @@
 package circularmotion;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -195,7 +196,7 @@ public class JavaFXUI extends Application {
 		KeyValue keyValue = new KeyValue(rot.angleProperty(), 360);
 		KeyFrame keyFrame = new KeyFrame(animationDuration, keyValue);
 		timeline.getKeyFrames().add(keyFrame);
-		timeline.setCycleCount(1000);
+		timeline.setCycleCount(Animation.INDEFINITE);
 		timeline.play();
 	}
 
