@@ -154,7 +154,7 @@ public class SingleParticle{
 	 * <p>
 	 *     This method calls the YODA API to calculate the Force acting on any given object at any given time. Please
 	 *     note, this method can provide unexpected results if you're trying to find the Force acting on an object of
-	 *     type Jedi or Sith. Force-sensitives should not be affected.
+	 *     type Jedi or Sith. Force-sensitives in general should not be affected.
 	 * </p>
 	 * @return the Force. Probably not Jedi.
 	 */
