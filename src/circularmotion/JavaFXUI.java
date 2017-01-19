@@ -28,6 +28,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import static java.awt.SystemColor.menu;
+
 
 public class JavaFXUI extends Application {
     private int height = 600;
@@ -35,7 +37,7 @@ public class JavaFXUI extends Application {
     private SingleParticle particle = new SingleParticle(1, true, 10, 1);
     private Group movingParts = new Group();
     private Circle circle;
-    private Timeline timeline;
+    private Timeline timeline = new Timeline();
     Stage primStg;
     Image icon = new Image("https://cdn1.iconfinder.com/data/icons/science-filled-1/60/circles-connection-motion-128.png");
     // Image is free for use.
@@ -120,6 +122,15 @@ public class JavaFXUI extends Application {
 		setUpMovingParts(particle.getCentre(), circle.getStroke(), size);
 	}
 
+
+	private void updateLabels(){
+		for (Node node: movingParts.getChildren()){
+			if (node.getId().equals("RadialLabel")){
+				((Label) node).setText(particle.getAcceleration() + "m·s⁻²");
+			}
+		}
+	}
+
 	/**
 	 * Method to handle setting up, resizing and colouring all of the moving parts
 	 * @param centre Point object holding the coordinates of the centre.
@@ -144,7 +155,15 @@ public class JavaFXUI extends Application {
 		    }
 		    arrowhead.setId("Arrowhead");
 
-			// Tangential stuffs
+		    Label radialLabel = new Label(particle.getAcceleration() + "m·s⁻²");
+		    radialLabel.setTextFill(colour);
+		    radialLabel.setTranslateX(260.0);
+		    radialLabel.setTranslateY(200.0);
+		    radialLabel.setRotate(90.0);
+		    radialLabel.setId("RadialLabel");
+
+
+			// Tangential stuff
 			Line tangentialVelocity =
 					new Line(centre.getX(), centre.getY()-250, centre.getX()+150, centre.getY()-250);
 			tangentialVelocity.setId("Line TangV");
@@ -163,7 +182,7 @@ public class JavaFXUI extends Application {
 			}
 			arrowhead2.setId("Arrowhead TangV");
 
-		    movingParts.getChildren().addAll(radius, arrowhead, tangentialVelocity, arrowhead2);
+		    movingParts.getChildren().addAll(radius, arrowhead, radialLabel, tangentialVelocity, arrowhead2);
 	    } else {    // If the objects already exist
 		    for (Node node: movingParts.getChildren()) {
 			    if (node.getId().contains("Line")){
@@ -188,7 +207,10 @@ public class JavaFXUI extends Application {
 	 * </p>
 	 */
 	private void playAnimation(){
-		timeline = new Timeline();
+		System.out.println(timeline.getStatus());
+		if (timeline.getStatus().equals(Animation.Status.RUNNING)) return;
+		else if (timeline.getStatus().equals(Animation.Status.PAUSED)) timeline.play();
+		else if (timeline.getStatus().equals(Animation.Status.STOPPED)) timeline.playFromStart();
 		Duration animationDuration;
 		/*
 		The duration of the animation should probably be scaled. For an orbit in the order of five to thirty seconds,
@@ -210,6 +232,9 @@ public class JavaFXUI extends Application {
 		} else animationDuration = new Duration(1); // Default case, should never occur
 
 		Rotate rot = new Rotate(0.1, particle.getCentre().getX(), particle.getCentre().getY());
+
+		particle.setAcceleration(9999999.0);
+		updateLabels();
 
 		movingParts.getTransforms().add(rot);
 
@@ -294,7 +319,6 @@ public class JavaFXUI extends Application {
     	startAnim.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				System.out.println("Here we go..");
 				playAnimation();
 			}
 		});
@@ -303,11 +327,12 @@ public class JavaFXUI extends Application {
 		stopAnim.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
+				System.out.print("STOP STOP STOP");
 				timeline.stop();
 			}
 		});
     	MenuItem exit = new MenuItem("Exit");
-    	exit.setAccelerator(KeyCombination.keyCombination("Alt+F4"));
+		exit.setAccelerator(KeyCombination.keyCombination("Alt+F4"));
         exit.setOnAction(new EventHandler<ActionEvent>() {
     		@Override
 			public void handle(ActionEvent event) {
@@ -395,9 +420,21 @@ public class JavaFXUI extends Application {
 				});
 	    		strokeSize.getItems().add(size);
 	    	}
-	    
+
+		// Submenu for graphs!
+		Menu graphs = new Menu("Graphs");
+		MenuItem displacementVTime = new MenuItem(" Displacement against Time");
+		displacementVTime.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				Grapher grapher = new Grapher();
+				grapher.show();
+			}
+		});
+
+		graphs.getItems().addAll(displacementVTime);
 	    // End of menu items.
-    	menu.getItems().addAll(changeBGColours, changeFGColours, strokeSize);
+    	menu.getItems().addAll(changeBGColours, changeFGColours, strokeSize, graphs);
     }
 	/**
      * Method to create the terms for the Edit menu. 
@@ -417,6 +454,7 @@ public class JavaFXUI extends Application {
     			cpui.show();
 
     			particle = cpui.getParticle();
+    			updateLabels();
 			}
 		});
     	menu.getItems().addAll(newCircleWindow);
