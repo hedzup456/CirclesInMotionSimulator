@@ -28,7 +28,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import static java.awt.SystemColor.menu;
 
 
 public class JavaFXUI extends Application {
@@ -201,16 +200,28 @@ public class JavaFXUI extends Application {
     }
 
 	/**
+	 * Simple method for play/pause.
+	 */
+	private void playPauseAnimation(){
+		System.out.println(timeline.getStatus());
+		if (timeline.getStatus().equals(Timeline.Status.PAUSED)) {
+			timeline.play();
+			System.out.println("Paused to " + timeline.getStatus());
+		}
+		else if (timeline.getStatus().equals(Timeline.Status.RUNNING)){
+			timeline.pause();
+			System.out.println("Running to " + timeline.getStatus());
+		}
+	}
+	/**
 	 * Method to handle the animation of the particle.
 	 * <p>
 	 *     This method will make the program display the force, acceleration, and current velocity of the particle.
 	 * </p>
 	 */
 	private void playAnimation(){
-		System.out.println(timeline.getStatus());
-		if (timeline.getStatus().equals(Animation.Status.RUNNING)) return;
-		else if (timeline.getStatus().equals(Animation.Status.PAUSED)) timeline.play();
-		else if (timeline.getStatus().equals(Animation.Status.STOPPED)) timeline.playFromStart();
+		if (timeline != null) playPauseAnimation();
+
 		Duration animationDuration;
 		/*
 		The duration of the animation should probably be scaled. For an orbit in the order of five to thirty seconds,
@@ -233,7 +244,6 @@ public class JavaFXUI extends Application {
 
 		Rotate rot = new Rotate(0.1, particle.getCentre().getX(), particle.getCentre().getY());
 
-		particle.setAcceleration(9999999.0);
 		updateLabels();
 
 		movingParts.getTransforms().add(rot);
@@ -314,8 +324,8 @@ public class JavaFXUI extends Application {
      * @param menu the Menu object to add items to.
      */
     private void makeFileMenu(Menu menu){
-    	MenuItem startAnim = new MenuItem("Start Animation");
-    	startAnim.setAccelerator(KeyCombination.keyCombination("Ctrl+Enter"));
+    	MenuItem startAnim = new MenuItem("Play/Pause Animation");
+    	startAnim.setAccelerator(KeyCombination.keyCombination("Space"));
     	startAnim.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -323,12 +333,13 @@ public class JavaFXUI extends Application {
 			}
 		});
     	MenuItem stopAnim = new MenuItem("Stop Animation");
-		stopAnim.setAccelerator(KeyCombination.keyCombination("Ctrl+Shift+Enter"));
+		stopAnim.setAccelerator(KeyCombination.keyCombination("Ctrl+Space"));
 		stopAnim.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				System.out.print("STOP STOP STOP");
 				timeline.stop();
+
 			}
 		});
     	MenuItem exit = new MenuItem("Exit");
