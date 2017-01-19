@@ -1,5 +1,6 @@
 package circularmotion;
 
+import com.sun.org.apache.xerces.internal.impl.dv.dtd.NMTOKENDatatypeValidator;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -34,6 +35,8 @@ public class Grapher {
     char x;
     char y;
 
+
+    int num = 360;
     /**
      * Constructor for the grapher object. Given no axis, the grapher automatically plots displacement against time.
      */
@@ -69,6 +72,10 @@ public class Grapher {
         NumberAxis xAxis = new NumberAxis();
         xAxis.setLabel( getVariableAsFullName(x) );
         xAxis.setId("Graph " + grapherIDNumber + " x axis");
+        xAxis.setAutoRanging(true);
+        xAxis.setForceZeroInRange(false);
+        xAxis.setMinorTickCount(0);
+
 
         LineChart<Number, Number> lineChart= new LineChart<Number, Number>(xAxis, yAxis);
         lineChart.setId("Graph " + grapherIDNumber + " graph");
@@ -77,10 +84,37 @@ public class Grapher {
         XYChart.Series dataSeries = new XYChart.Series();
         dataSeries.setName("Pregenerated Values");
 
+        for (int i = 0; i <= 360; i++){
+            dataSeries.getData().add(new XYChart.Data<Number, Number>(i, Math.sin( Math.toRadians(i) ) ) );
+        }
+
         lineChart.getData().add(dataSeries);
 
-        Scene scene = new Scene(lineChart, 800, 600);
+        Button addNew = new Button("ASDF");
+        addNew.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle (ActionEvent event) {
+                addNewDataPointToGraph();
+            }
+        });
+        addNew.setDefaultButton(true);
+
+        Group root = new Group();
+        root.getChildren().addAll(lineChart, addNew);
+        Scene scene = new Scene(root, 800, 600);
         grapher.setScene(scene);
+    }
+
+    /**
+     * This is a method for testing only. Science.
+     */
+    private void addNewDataPointToGraph(){
+        LineChart<Number, Number> lc = (LineChart<Number, Number>) grapher.getScene().getRoot().getChildrenUnmodifiable().get(0);
+        XYChart.Series data = lc.getData().get(0);    // Get the data set.
+
+        data.getData().remove(0);
+        data.getData().add( new XYChart.Data<Number, Number>(num, Math.sin( Math.toRadians(num) ) ) );
+        num++;
     }
 
     private String getVariableAsFullName(char var) {
